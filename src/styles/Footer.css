@@ -1,0 +1,31 @@
+.footer-custom {
+    background-color: #556b2f; /* El mismo verde oliva del Navbar */
+    color: white;
+    margin-top: 50px;
+}
+
+.footer-link {
+    color: #dcdcdc;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.footer-link:hover {
+    color: white;
+    text-decoration: underline;
+}
+
+.social-icon {
+    color: white;
+    font-size: 2rem; /* Iconos de redes grandes */
+    transition: transform 0.3s, color 0.3s;
+}
+
+.social-icon:hover {
+    color: #dcdcdc;
+    transform: translateY(-5px); /* Efecto de salto al pasar el ratón */
+}
+
+hr {
+    opacity: 0.2;
+}

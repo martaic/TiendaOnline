@@ -1,0 +1,28 @@
+/* App.css */
+.container-home {
+  text-align: center;
+  padding: 20px;
+}
+
+.product-card {
+  border: 1px solid #333;
+  border-radius: 8px;
+  margin: 15px auto;
+  padding: 20px;
+  max-width: 300px;
+  transition: transform 0.2s;
+}
+
+.product-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.btn-buy {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}

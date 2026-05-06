@@ -1,0 +1,109 @@
+/* 1. Fondo general de la página con un verde suave oliva */
+.container-home {
+    background-color: #f8faf2; /* Verde muy clarito para que resalte el blanco de las cards */
+    min-height: 100vh;
+}
+
+/* 2. Pestañas: pegadas arriba y con espacio abajo */
+.pestañas {
+    margin-top: 0 !important;
+    margin-bottom: 2.5rem; /* Espacio antes del carrusel */
+    background-color: white !important;
+}
+
+/* 3. Títulos de secciones en verde oliva */
+.section-title {
+    color: #556b2f;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 2.5rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* 4. Diseño de las Tarjetas (Cards) */
+.product-card {
+    width: 18rem;
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background-color: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+}
+
+.product-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* 5. Imágenes uniformes */
+.product-card .card-img-top {
+    height: 220px;
+    object-fit: cover; /* Recorta la imagen para que no se estire */
+    border-bottom: 1px solid #f0f0f0;
+}
+
+/* 6. Cuerpo de la tarjeta alineado */
+.product-card .card-body {
+    display: flex;
+    flex-direction: column;
+    padding: 1.25rem;
+}
+
+.product-card .card-title {
+    font-size: 1.1rem;
+    color: #333;
+    height: 2.8rem; /* Reserva espacio para que todas las tarjetas se alineen */
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.product-card .card-text {
+    margin-bottom: 1rem;
+    color: #666;
+}
+
+/* 7. Carrusel con bordes suaves */
+.carousel {
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 0 20px 3rem 20px; /* Margen lateral y separación inferior */
+}
+/* Contenedor del Slider */
+.slider-productos {
+    display: flex;
+    overflow-x: auto; /* Habilita el scroll horizontal */
+    gap: 1.5rem;      /* Espacio entre tarjetas */
+    padding: 1rem 0.5rem 2rem 0.5rem;
+    scroll-behavior: smooth;
+    scrollbar-width: thin; /* Para Firefox: barra más fina */
+    scrollbar-color: #556b2f transparent;
+}
+
+/* Estética de la barra de scroll para Chrome/Safari */
+.slider-productos::-webkit-scrollbar {
+    height: 8px;
+}
+
+.slider-productos::-webkit-scrollbar-thumb {
+    background: #556b2f; /* Tu verde oliva */
+    border-radius: 10px;
+}
+
+.slider-productos::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* IMPORTANTE: Evitar que las tarjetas se encojan */
+.slider-productos .product-card {
+    flex: 0 0 auto; /* Esto impide que las tarjetas se compriman para caber */
+    width: 16rem;   /* Un pelín más estrechas para que se vea que hay más */
+}
+
+/* Alineación del título */
+.section-title {
+    text-align: left !important; /* Queda mejor alineado a la izquierda en sliders */
+}

@@ -29,3 +29,11 @@
 hr {
     opacity: 0.2;
 }
+.footer-link {
+  color: white;
+  text-decoration: none;
+}
+
+.footer-link:hover {
+  color: #ddd;
+}

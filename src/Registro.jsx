@@ -32,7 +32,7 @@ function Registro() {
             <input 
               type="email" 
               className="form-control" 
-              placeholder="ejemplo@correo.com"
+              placeholder="correo@mail.com"
               onChange={(e) => setEmail(e.target.value)} 
               required 
             />

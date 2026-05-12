@@ -46,7 +46,7 @@ function Login() {
             <input 
               type="email" 
               className="form-control" 
-              placeholder="tu@email.com"
+              placeholder="correo@mail.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)} 
               required 

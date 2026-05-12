@@ -162,16 +162,7 @@ function Perfil() {
                 </div>
               </div>
 
-              {/* PAGO */}
-              <h5 className="border-bottom pb-2 mb-3 text-success fw-bold">Método de Pago</h5>
-              <div className="mb-4">
-                <div className="input-group">
-                  <span className="input-group-text bg-white"><i className="bi bi-credit-card"></i></span>
-                  <input type="text" className="form-control" placeholder="**** **** **** 1234"
-                    value={perfil.tarjeta || ''}
-                    onChange={e => setPerfil({ ...perfil, tarjeta: e.target.value })} />
-                </div>
-              </div>
+        
 
               <button type="submit" className="btn btn-success w-100 fw-bold py-2 shadow-sm" style={{ backgroundColor: '#556b2f', borderColor: '#556b2f' }}>
                 <i className="bi bi-save me-2"></i> Guardar toda la información

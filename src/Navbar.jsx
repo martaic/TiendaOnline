@@ -124,7 +124,7 @@ function Navbar() {
 
           {/* CARRITO */}
           <Link to="/carrito" className="text-white fs-4 position-relative">
-            <i className="bi bi-cart3"></i>
+            <i class="bi bi-basket2-fill"></i>
             {cartCount > 0 && (
               <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style={{ fontSize: '0.6rem' }}>
                 {cartCount}

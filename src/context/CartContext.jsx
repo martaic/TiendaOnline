@@ -37,18 +37,26 @@ export const CartProvider = ({ children }) => {
   const clearCart = () => setCart([]);
 
   // 5. Cálculos (Contador y Total en Euros)
-  const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
-  const cartTotal = cart.reduce((total, item) => total + (item.precio * item.quantity), 0);
+  const cartCount = cart.reduce(
+    (total, item) => total + item.quantity,
+    0
+  );
+
+  // Intentamos leer 'price', si no existe, leemos 'precio'
+  const cartTotal = cart.reduce((acc, item) => {
+    const precioUnitario = item.price !== undefined ? item.price : item.precio;
+    return acc + (Number(precioUnitario || 0) * item.quantity);
+  }, 0);
 
   return (
-    <CartContext.Provider value={{ 
-      cart, 
-      addToCart, 
-      removeFromCart, 
-      updateQuantity, 
-      clearCart, 
-      cartCount, 
-      cartTotal // <-- ¡Esto arreglará el error del .toFixed()!
+    <CartContext.Provider value={{
+      cart,
+      addToCart,
+      removeFromCart,
+      updateQuantity,
+      clearCart,
+      cartCount,
+      cartTotal
     }}>
       {children}
     </CartContext.Provider>

@@ -1,0 +1,60 @@
+/* Fondo Verde Oliva */
+.custom-navbar {
+    background-color: #556b2f !important; /* Verde oliva */
+    padding: 0.8rem 1.5rem;
+}
+
+/* Color del texto del Logo e iconos */
+.custom-navbar .navbar-brand, 
+.custom-navbar .navbar-brand i {
+    color: white !important;
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+/* Buscador centrado y responsive */
+.search-form {
+    width: 45%; 
+    min-width: 280px;
+}
+
+/* Botón de buscar personalizado */
+.btn-search {
+    border: 1px solid white !important;
+    color: white !important;
+    transition: all 0.3s;
+}
+
+.btn-search:hover {
+    background-color: white !important;
+    color: #556b2f !important;
+}
+
+/* Iconos de Usuario y Carrito */
+.nav-icon-link {
+    color: white !important;
+    text-decoration: none;
+    margin-left: 1.5rem; /* Espacio entre iconos */
+}
+
+.nav-icon-link i {
+    font-size: 1.8rem !important; /* AQUÍ se cambia el tamaño */
+    transition: color 0.2s;
+}
+
+.nav-icon-link:hover i {
+    color: #dcdcdc !important;
+}
+
+/* Ajustes para móviles */
+@media (max-width: 991px) {
+    .search-form {
+        width: 100%;
+        margin: 1rem 0;
+    }
+    .navbar-icons {
+        justify-content: space-around;
+        padding-top: 40px;
+        border-top: 1px solid rgba(255,255,255,0.2);
+    }
+}

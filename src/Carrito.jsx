@@ -1,18 +1,36 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useCart } from './context/CartContext';
 import { Link } from 'react-router-dom';
 import { createShopifyCheckout } from './services/shopifyCheckout';
 
+// Formatea precios al estilo español: 3,50 €
+const formatoEuro = new Intl.NumberFormat('es-ES', {
+  style: 'currency',
+  currency: 'EUR',
+});
+const formatearPrecio = (valor) => formatoEuro.format(Number(valor || 0));
+
 function Carrito() {
   const { cart, removeFromCart, updateQuantity, cartTotal } = useCart();
+  const [pagando, setPagando] = useState(false);
+  const [errorPago, setErrorPago] = useState('');
+
+  // Título de la pestaña del navegador
+  useEffect(() => {
+    document.title = 'Tu carrito | El Puesto de la Dieta';
+  }, []);
 
   if (cart.length === 0) {
     return (
-      <div className="container py-5 text-center">
+      <div className="container py-5 text-center" style={{ minHeight: '60vh' }}>
         <i className="bi bi-cart-x display-1 text-muted"></i>
-        <h2 className="mt-4">Tu carrito está vacío</h2>
+        <h1 className="mt-4 fs-2">Tu carrito está vacío</h1>
         <p className="text-secondary">¿A qué esperas para llenarlo de encurtidos o frutos secos?</p>
-        <Link to="/" className="btn btn-success rounded-pill px-4" style={{ backgroundColor: '#556b2f' }}>
+        <Link
+          to="/"
+          className="btn btn-success rounded-pill px-4"
+          style={{ backgroundColor: '#556b2f', border: 'none' }}
+        >
           Volver a la tienda
         </Link>
       </div>
@@ -20,58 +38,100 @@ function Carrito() {
   }
 
   const handleCheckout = async () => {
+    setPagando(true);
+    setErrorPago('');
     try {
       const checkoutUrl = await createShopifyCheckout(cart);
+      // Llevamos al cliente a la página de pago segura de Shopify
       window.location.href = checkoutUrl;
     } catch (error) {
-      console.error('Error detallado del checkout:', error);
-      alert('Error al iniciar el pago: ' + error.message);
+      console.error('Error al crear el pago en Shopify:', error);
+      setErrorPago(
+        'No hemos podido iniciar el pago. Revisa tu carrito e inténtalo de nuevo. ' +
+          'Si el problema continúa, escríbenos y te ayudamos.'
+      );
+      setPagando(false);
     }
   };
 
   return (
     <div className="container py-5">
-      <h2 className="fw-bold mb-4">Tu Carrito</h2>
+      <h1 className="fw-bold mb-4 fs-2">Tu carrito</h1>
+
       <div className="row g-4">
         {/* LISTA DE PRODUCTOS */}
         <div className="col-lg-8">
           {cart.map((item) => {
-            // Mapeos de compatibilidad total (Español / Inglés)
-            const tituloMostrado = item.title || item.nombre || 'Producto';
-            const precioMostrado = item.price !== undefined ? item.price : item.precio;
-            const imagenMostrada = item.image || item.imagen_url || 'https://via.placeholder.com/80';
+            const titulo = item.title || item.nombre || 'Producto';
+            const precio = Number(item.price ?? item.precio ?? 0);
+            const imagen = item.image || item.imagen_url;
 
             return (
               <div key={item.id} className="card shadow-sm border-0 mb-3 p-3">
-                <div className="row align-items-center">
+                <div className="row align-items-center g-3">
                   <div className="col-3 col-md-2">
-                    <img 
-                      src={imagenMostrada} 
-                      alt={tituloMostrado} 
-                      className="img-fluid rounded"
-                      style={{ maxHeight: '80px', objectFit: 'cover' }}
-                    />
+                    {imagen ? (
+                      <img
+                        src={imagen}
+                        alt={titulo}
+                        className="img-fluid rounded"
+                        style={{ width: '80px', height: '80px', objectFit: 'cover' }}
+                      />
+                    ) : (
+                      <div
+                        className="bg-light rounded d-flex align-items-center justify-content-center text-muted"
+                        style={{ width: '80px', height: '80px' }}
+                      >
+                        <i className="bi bi-image fs-3"></i>
+                      </div>
+                    )}
                   </div>
 
                   <div className="col-9 col-md-5">
-                    <h5 className="mb-0 fw-bold">{tituloMostrado}</h5>
-                    <p className="text-secondary mb-0">{Number(precioMostrado || 0).toFixed(2)}€ / ud</p>
-                    
+                    <h2 className="mb-1 fw-bold fs-6">{titulo}</h2>
+                    <p className="text-secondary mb-0 small">{formatearPrecio(precio)} / ud.</p>
+
+                    {/* Por ejemplo, la composición del mix de gildas */}
                     {item.descripcion && (
                       <small className="text-muted d-block mt-1">{item.descripcion}</small>
                     )}
                   </div>
 
-                  <div className="col-6 col-md-3 mt-3 mt-md-0">
-                    <div className="input-group input-group-sm">
-                      <button className="btn btn-outline-secondary" onClick={() => updateQuantity(item.id, item.quantity - 1)}>-</button>
-                      <span className="input-group-text bg-white px-3">{item.quantity}</span>
-                      <button className="btn btn-outline-secondary" onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
+                  <div className="col-7 col-md-3">
+                    <div className="input-group input-group-sm" style={{ maxWidth: '130px' }}>
+                      <button
+                        type="button"
+                        className="btn btn-outline-secondary"
+                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        disabled={item.quantity <= 1 || pagando}
+                        aria-label={`Quitar una unidad de ${titulo}`}
+                      >
+                        −
+                      </button>
+                      <span className="input-group-text bg-white px-3" aria-live="polite">
+                        {item.quantity}
+                      </span>
+                      <button
+                        type="button"
+                        className="btn btn-outline-secondary"
+                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        disabled={pagando}
+                        aria-label={`Añadir una unidad de ${titulo}`}
+                      >
+                        +
+                      </button>
                     </div>
                   </div>
 
-                  <div className="col-6 col-md-2 text-end mt-3 mt-md-0">
-                    <button className="btn btn-link text-danger p-0" onClick={() => removeFromCart(item.id)}>
+                  <div className="col-5 col-md-2 text-end">
+                    <div className="fw-bold mb-1">{formatearPrecio(precio * item.quantity)}</div>
+                    <button
+                      type="button"
+                      className="btn btn-link text-danger p-0"
+                      onClick={() => removeFromCart(item.id)}
+                      disabled={pagando}
+                      aria-label={`Eliminar ${titulo} del carrito`}
+                    >
                       <i className="bi bi-trash fs-5"></i>
                     </button>
                   </div>
@@ -79,32 +139,61 @@ function Carrito() {
               </div>
             );
           })}
+
+          <Link to="/" className="btn btn-link text-success px-0">
+            <i className="bi bi-arrow-left me-1"></i> Seguir comprando
+          </Link>
         </div>
 
         {/* RESUMEN DEL PEDIDO */}
         <div className="col-lg-4">
-          <div className="card shadow-sm border-0 p-4 bg-light">
-            <h4 className="fw-bold mb-4">Resumen</h4>
+          <div className="card shadow-sm border-0 p-4 bg-light position-sticky" style={{ top: '1rem' }}>
+            <h2 className="fw-bold mb-4 fs-4">Resumen</h2>
+
             <div className="d-flex justify-content-between mb-2">
               <span>Subtotal</span>
-              <span>{Number(cartTotal || 0).toFixed(2)}€</span>
+              <span>{formatearPrecio(cartTotal)}</span>
             </div>
             <div className="d-flex justify-content-between mb-4">
               <span>Gastos de envío</span>
-              <span className="text-success fw-bold">Gratis</span>
+              <span className="text-muted small text-end">Se calculan en el siguiente paso</span>
             </div>
+
             <hr />
-            <div className="d-flex justify-content-between mb-4">
-              <span className="h5 fw-bold">Total</span>
-              <span className="h5 fw-bold text-success">{Number(cartTotal || 0).toFixed(2)}€</span>
+
+            <div className="d-flex justify-content-between mb-1">
+              <span className="h5 fw-bold mb-0">Total estimado</span>
+              <span className="h5 fw-bold text-success mb-0">{formatearPrecio(cartTotal)}</span>
             </div>
-            <button 
+            <p className="text-muted small mb-4">IVA incluido. Envío no incluido.</p>
+
+            {errorPago && (
+              <div className="alert alert-danger small" role="alert">
+                {errorPago}
+              </div>
+            )}
+
+            <button
+              type="button"
               className="btn btn-success w-100 py-3 fw-bold rounded-pill shadow"
               style={{ backgroundColor: '#556b2f', border: 'none' }}
               onClick={handleCheckout}
+              disabled={pagando}
             >
-              Confirmar y Pagar
+              {pagando ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                  Preparando el pago...
+                </>
+              ) : (
+                'Confirmar y pagar'
+              )}
             </button>
+
+            <p className="text-muted small text-center mt-3 mb-0">
+              <i className="bi bi-lock-fill me-1"></i>
+              Pago seguro con Shopify
+            </p>
           </div>
         </div>
       </div>

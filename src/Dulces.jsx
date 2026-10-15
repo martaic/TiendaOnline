@@ -1,256 +1,377 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import './styles/Home.css';
 import { useCart } from './context/CartContext';
 import { getCollectionProducts } from './shopifyClient';
 
+// Formatea precios al estilo español: 3,50 €
+const formatoEuro = new Intl.NumberFormat('es-ES', {
+  style: 'currency',
+  currency: 'EUR',
+});
+const formatearPrecio = (valor) => formatoEuro.format(Number(valor || 0));
+
+// Filtros disponibles (clave interna → texto que ve el cliente)
+const FILTROS = [
+  { clave: 'todos', texto: 'Todos' },
+  { clave: 'con-azucar', texto: 'Con azúcar' },
+  { clave: 'sin-azucar', texto: 'Sin azúcar' },
+];
+
+const ETIQUETAS = {
+  'con-azucar': { texto: 'Con azúcar', clase: 'bg-warning text-dark' },
+  'sin-azucar': { texto: 'Sin azúcar', clase: 'bg-info text-dark' },
+};
+
+// ================= TARJETA DE PRODUCTO =================
+function TarjetaDulce({ item, onVerInfo, onAdd }) {
+  const variantes = item.variantes || [];
+
+  // Por defecto elegimos la primera variante que tenga stock
+  const [varianteId, setVarianteId] = useState(
+    () => (variantes.find((v) => v.availableForSale !== false) || variantes[0])?.id
+  );
+  const [anadido, setAnadido] = useState(false);
+
+  const varianteActual = variantes.find((v) => v.id === varianteId) || variantes[0];
+  if (!varianteActual) return null;
+
+  const agotado = varianteActual.availableForSale === false;
+  const tieneVariasOpciones = variantes.length > 1;
+  const etiqueta = ETIQUETAS[item.subcategoria];
+
+  const handleAdd = () => {
+    onAdd({
+      id: varianteActual.id, // ID de la variante: es lo que Shopify necesita para el pago
+      title: tieneVariasOpciones ? `${item.nombre} (${varianteActual.title})` : item.nombre,
+      price: Number(varianteActual.price?.amount || 0),
+      image: item.imagen_url,
+    });
+    setAnadido(true);
+    setTimeout(() => setAnadido(false), 1500);
+  };
+
+  return (
+    <div className="col-12 col-sm-6 col-md-4 col-lg-3">
+      <div className="card h-100 shadow-sm border-0 product-card">
+        {etiqueta && (
+          <span
+            className={`badge position-absolute m-2 ${etiqueta.clase}`}
+            style={{ top: 0, right: 0, zIndex: 1 }}
+          >
+            {etiqueta.texto}
+          </span>
+        )}
+
+        {/* La foto abre la ficha con ingredientes */}
+        <button
+          type="button"
+          className="p-0 border-0 bg-transparent"
+          onClick={() => onVerInfo(item)}
+          aria-label={`Ver ingredientes de ${item.nombre}`}
+        >
+          {item.imagen_url ? (
+            <img
+              src={item.imagen_url}
+              alt={item.imagen_alt || item.nombre}
+              className="card-img-top"
+              loading="lazy"
+              width="400"
+              height="220"
+              style={{ height: '220px', objectFit: 'cover' }}
+            />
+          ) : (
+            <div
+              className="card-img-top bg-light d-flex align-items-center justify-content-center text-muted"
+              style={{ height: '220px' }}
+            >
+              <i className="bi bi-image fs-1"></i>
+            </div>
+          )}
+        </button>
+
+        <div className="card-body d-flex flex-column text-center">
+          <h2 className="card-title fw-bold fs-5">{item.nombre}</h2>
+
+          {/* Descripción corta (máx. 3 líneas); el texto completo está en la ficha */}
+          {item.descripcion && (
+            <p
+              className="text-muted small mb-1"
+              style={{
+                display: '-webkit-box',
+                WebkitLineClamp: 3,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+              }}
+            >
+              {item.descripcion}
+            </p>
+          )}
+
+          <button
+            type="button"
+            className="btn btn-link text-danger small mb-3 p-0"
+            onClick={() => onVerInfo(item)}
+          >
+            Ver ingredientes e información
+          </button>
+
+          {tieneVariasOpciones && (
+            <div className="mb-3">
+              <label className="form-label small fw-bold" htmlFor={`variante-${item.id}`}>
+                Selecciona cantidad
+              </label>
+              <select
+                id={`variante-${item.id}`}
+                className="form-select"
+                value={varianteActual.id}
+                onChange={(e) => setVarianteId(e.target.value)}
+              >
+                {variantes.map((v) => (
+                  <option key={v.id} value={v.id}>
+                    {v.title}
+                    {v.availableForSale === false ? ' (agotado)' : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <p className="fs-4 fw-bold text-danger mt-auto mb-3">
+            {formatearPrecio(varianteActual.price?.amount)}
+          </p>
+
+          <button
+            type="button"
+            className="btn btn-danger w-100"
+            onClick={handleAdd}
+            disabled={agotado}
+          >
+            {agotado ? 'Agotado' : anadido ? '✓ Añadido' : 'Añadir al carrito'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ================= VENTANA EMERGENTE (MODAL) =================
+function ModalProducto({ producto, onClose }) {
+  // Cerrar con la tecla Escape y bloquear el scroll de fondo mientras está abierto
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', handleKey);
+    const overflowAnterior = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.removeEventListener('keydown', handleKey);
+      document.body.style.overflow = overflowAnterior;
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      className="modal fade show d-block"
+      tabIndex="-1"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-producto-titulo"
+      style={{ backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1050 }}
+      onClick={onClose} // Cierra al pulsar fuera
+    >
+      <div
+        className="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="modal-content border-0 shadow-lg">
+          <div className="modal-header bg-danger text-white">
+            <h2 id="modal-producto-titulo" className="modal-title fw-bold fs-5">
+              {producto.nombre}
+            </h2>
+            <button
+              type="button"
+              className="btn-close btn-close-white"
+              aria-label="Cerrar"
+              onClick={onClose}
+              autoFocus
+            ></button>
+          </div>
+
+          <div className="modal-body text-center p-4">
+            {producto.imagen_url && (
+              <img
+                src={producto.imagen_url}
+                alt={producto.imagen_alt || producto.nombre}
+                className="img-fluid rounded mb-3 shadow-sm"
+                style={{ maxHeight: '240px', width: '100%', objectFit: 'cover' }}
+              />
+            )}
+
+            <div className="text-start mt-3">
+              <h3 className="fw-bold text-danger fs-6">📋 Ingredientes y alérgenos:</h3>
+              <p
+                className="text-muted bg-light p-3 rounded"
+                style={{ whiteSpace: 'pre-line', lineHeight: '1.6' }}
+              >
+                {producto.descripcion ||
+                  'No se han especificado los ingredientes de este artículo.'}
+              </p>
+            </div>
+          </div>
+
+          <div className="modal-footer border-0 p-3">
+            <button
+              type="button"
+              className="btn btn-secondary w-100 py-2 fw-bold"
+              onClick={onClose}
+            >
+              Cerrar y seguir comprando
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ================= PÁGINA =================
 function Dulces() {
   const [productos, setProductos] = useState([]);
   const [filtro, setFiltro] = useState('todos');
   const [cargando, setCargando] = useState(true);
-
-  const [variantesSeleccionadas, setVariantesSeleccionadas] =
-    useState({});
+  const [error, setError] = useState(false);
+  const [productoSeleccionado, setProductoSeleccionado] = useState(null);
+  const [intento, setIntento] = useState(0); // para el botón "Reintentar"
 
   const { addToCart } = useCart();
 
+  // Título de la pestaña del navegador (también ayuda en Google)
   useEffect(() => {
-    cargarDulces();
+    document.title = 'Dulces con y sin azúcar | El Puesto de la Dieta';
   }, []);
 
-  async function cargarDulces() {
-    try {
-      setCargando(true);
+  useEffect(() => {
+    let cancelado = false;
 
-      const conAzucar =
-        await getCollectionProducts('dulces-con-azucar');
+    // Pedimos las dos colecciones a la vez (más rápido que una detrás de otra)
+    Promise.allSettled([
+      getCollectionProducts('dulces-con-azucar'),
+      getCollectionProducts('dulces-sin-azucar'),
+    ]).then(([resCon, resSin]) => {
+      if (cancelado) return;
 
-      const sinAzucar =
-        await getCollectionProducts('dulces-sin-azucar');
+      if (resCon.status === 'rejected' && resSin.status === 'rejected') {
+        console.error('Error cargando dulces:', resCon.reason, resSin.reason);
+        setError(true);
+        setCargando(false);
+        return;
+      }
 
+      const conAzucar = resCon.status === 'fulfilled' ? resCon.value : [];
+      const sinAzucar = resSin.status === 'fulfilled' ? resSin.value : [];
+
+      // Si un producto está en las dos colecciones, solo lo mostramos una vez
+      const vistos = new Set();
       const productosFinales = [
-        ...conAzucar.map(item => ({
-          ...item,
-          subcategoria: 'con azucar'
-        })),
-        ...sinAzucar.map(item => ({
-          ...item,
-          subcategoria: 'sin azucar'
-        }))
-      ];
-
-      setProductos(productosFinales);
-
-      const iniciales = {};
-
-      productosFinales.forEach(producto => {
-        if (producto.variantes?.length > 0) {
-          iniciales[producto.id] =
-            producto.variantes[0].id;
-        }
+        ...conAzucar.map((item) => ({ ...item, subcategoria: 'con-azucar' })),
+        ...sinAzucar.map((item) => ({ ...item, subcategoria: 'sin-azucar' })),
+      ].filter((item) => {
+        if (vistos.has(item.id)) return false;
+        vistos.add(item.id);
+        return true;
       });
 
-      setVariantesSeleccionadas(iniciales);
-
-    } catch (error) {
-      console.error(
-        'Error cargando dulces:',
-        error
-      );
-    } finally {
+      setProductos(productosFinales);
+      setError(false);
       setCargando(false);
-    }
-  }
+    });
 
-  const handleCambioVariante = (
-    productoId,
-    varianteId
-  ) => {
-    setVariantesSeleccionadas(prev => ({
-      ...prev,
-      [productoId]: varianteId
-    }));
+    // Si el usuario sale de la página antes de que responda Shopify, no actualizamos nada
+    return () => {
+      cancelado = true;
+    };
+  }, [intento]);
+
+  const cerrarModal = useCallback(() => setProductoSeleccionado(null), []);
+
+  const reintentar = () => {
+    setCargando(true);
+    setError(false);
+    setIntento((n) => n + 1);
   };
 
-  const productosFiltrados = productos.filter(item => {
-    if (filtro === 'todos') return true;
-    return item.subcategoria === filtro;
-  });
+  const productosFiltrados =
+    filtro === 'todos' ? productos : productos.filter((item) => item.subcategoria === filtro);
 
   if (cargando) {
     return (
-      <div className="text-center py-5">
-        Endulzando la página...
+      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
+        <div className="text-center">
+          <div className="spinner-border text-danger mb-2" role="status"></div>
+          <p className="text-muted">Endulzando la página...</p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="container py-5">
-
       <div className="text-center mb-5">
-
-        <h1 className="display-4 fw-bold text-danger">
+        <h1 className="fw-bold text-danger" style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)' }}>
           Nuestros Dulces
         </h1>
+        <p className="lead text-muted">Tu momento más dulce. Bocados que alegran el día.</p>
 
-        <p className="lead text-muted">
-          Tu momento más dulce. Bocados que alegran el día.
-        </p>
+        {!error && productos.length > 0 && (
+          <div className="btn-group mt-3 shadow-sm" role="group" aria-label="Filtrar dulces">
+            {FILTROS.map(({ clave, texto }) => (
+              <button
+                key={clave}
+                type="button"
+                onClick={() => setFiltro(clave)}
+                aria-pressed={filtro === clave}
+                className={`btn ${filtro === clave ? 'btn-danger' : 'btn-outline-danger'}`}
+              >
+                {texto}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
 
-        <div
-          className="btn-group mt-3 shadow-sm"
-          role="group"
-        >
-          <button
-            onClick={() => setFiltro('todos')}
-            className={`btn ${
-              filtro === 'todos'
-                ? 'btn-danger'
-                : 'btn-outline-danger'
-            }`}
-          >
-            Todos
-          </button>
-
-          <button
-            onClick={() => setFiltro('con azucar')}
-            className={`btn ${
-              filtro === 'con azucar'
-                ? 'btn-danger'
-                : 'btn-outline-danger'
-            }`}
-          >
-            Con Azúcar
-          </button>
-
-          <button
-            onClick={() => setFiltro('sin azucar')}
-            className={`btn ${
-              filtro === 'sin azucar'
-                ? 'btn-danger'
-                : 'btn-outline-danger'
-            }`}
-          >
-            Sin Azúcar
+      {error ? (
+        <div className="text-center py-5">
+          <p className="text-muted mb-3">
+            No hemos podido cargar los productos. Comprueba tu conexión e inténtalo de nuevo.
+          </p>
+          <button type="button" className="btn btn-danger rounded-pill px-4" onClick={reintentar}>
+            Reintentar
           </button>
         </div>
-
-      </div>
-
-      <div className="row g-4">
-
-        {productosFiltrados.map(item => {
-
-          const varianteActualId =
-            variantesSeleccionadas[item.id];
-
-          const varianteActual =
-            item.variantes?.find(
-              v => v.id === varianteActualId
-            ) || item.variantes?.[0];
-
-          return (
-            <div
+      ) : productosFiltrados.length === 0 ? (
+        <p className="text-center text-muted py-5">
+          {productos.length === 0
+            ? 'Ahora mismo no hay dulces disponibles. ¡Vuelve pronto!'
+            : 'No hay dulces en esta categoría por ahora.'}
+        </p>
+      ) : (
+        <div className="row g-4">
+          {productosFiltrados.map((item) => (
+            <TarjetaDulce
               key={item.id}
-              className="col-12 col-sm-6 col-md-4 col-lg-3"
-            >
-              <div className="card h-100 shadow-sm border-0 product-card">
+              item={item}
+              onVerInfo={setProductoSeleccionado}
+              onAdd={addToCart}
+            />
+          ))}
+        </div>
+      )}
 
-                <span
-                  className={`badge position-absolute m-2 ${
-                    item.subcategoria === 'sin azucar'
-                      ? 'bg-info'
-                      : 'bg-warning text-dark'
-                  }`}
-                  style={{
-                    top: 0,
-                    right: 0
-                  }}
-                >
-                  {item.subcategoria}
-                </span>
-
-                <img
-                  src={item.imagen_url}
-                  alt={item.nombre}
-                  className="card-img-top"
-                  style={{
-                    height: '220px',
-                    objectFit: 'cover'
-                  }}
-                />
-
-                <div className="card-body d-flex flex-column text-center">
-
-                  <h5 className="card-title fw-bold">
-                    {item.nombre}
-                  </h5>
-
-                  <p className="text-muted small">
-                    {item.descripcion}
-                  </p>
-
-                  {item.variantes?.length > 1 && (
-                    <div className="mb-3">
-
-                      <label className="form-label small fw-bold">
-                        Selecciona cantidad
-                      </label>
-
-                      <select
-                        className="form-select"
-                        value={varianteActualId || ''}
-                        onChange={(e) =>
-                          handleCambioVariante(
-                            item.id,
-                            e.target.value
-                          )
-                        }
-                      >
-                        {item.variantes.map(v => (
-                          <option
-                            key={v.id}
-                            value={v.id}
-                          >
-                            {v.title}
-                          </option>
-                        ))}
-                      </select>
-
-                    </div>
-                  )}
-
-                  <p className="fs-4 fw-bold text-danger">
-                    {parseFloat(
-                      varianteActual?.price?.amount || 0
-                    ).toFixed(2)}€
-                  </p>
-
-                  <button
-                    className="btn btn-danger mt-auto"
-                    onClick={() =>
-                      addToCart({
-                        id: varianteActual.id,
-                        title: `${item.nombre} (${varianteActual.title})`,
-                        price: parseFloat(
-                          varianteActual.price.amount
-                        ),
-                        image: item.imagen_url
-                      })
-                    }
-                  >
-                    Añadir al carrito
-                  </button>
-
-                </div>
-
-              </div>
-            </div>
-          );
-        })}
-
-      </div>
-
+      {productoSeleccionado && (
+        <ModalProducto producto={productoSeleccionado} onClose={cerrarModal} />
+      )}
     </div>
   );
 }

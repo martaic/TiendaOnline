@@ -15,7 +15,7 @@ function Contacto() {
         <p>
           <strong>Teléfono:</strong>
           <br />
-          600 000 000
+          633 683 722
         </p>
 
         <p>
@@ -27,13 +27,7 @@ function Contacto() {
         <p>
           <strong>Dirección:</strong>
           <br />
-          Tu dirección aquí
-        </p>
-
-        <p>
-          <strong>Horario:</strong>
-          <br />
-          Lunes a Sábado
+          Calle Bobadilla,2
         </p>
 
       </div>

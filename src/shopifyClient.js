@@ -1,26 +1,28 @@
 import { shopifyConfig } from './shopifyConfig';
 
-async function shopifyFetch(query) {
-  const response = await fetch(
-    `https://${shopifyConfig.storeDomain}/api/${shopifyConfig.apiVersion}/graphql.json`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Shopify-Storefront-Access-Token':
-          shopifyConfig.publicAccessToken,
-      },
-      body: JSON.stringify({ query }),
-    }
-  );
+const endpoint = `https://${shopifyConfig.storeDomain}/api/${shopifyConfig.apiVersion}/graphql.json`;
+
+async function shopifyFetch(query, variables = {}) {
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Shopify-Storefront-Access-Token': shopifyConfig.publicAccessToken,
+    },
+    body: JSON.stringify({ query, variables }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Shopify respondió con el estado ${response.status}`);
+  }
 
   return response.json();
 }
 
-export async function getCollectionProducts(handle) {
-  const query = `
-  {
-    collection(handle: "${handle}") {
+// La colección se pasa como variable de GraphQL (más seguro que meterla en el texto)
+const COLLECTION_PRODUCTS_QUERY = `
+  query CollectionProducts($handle: String!) {
+    collection(handle: $handle) {
       products(first: 100) {
         edges {
           node {
@@ -30,13 +32,16 @@ export async function getCollectionProducts(handle) {
             description
 
             featuredImage {
-              url
+              # Shopify nos da la foto ya reducida a 800 px: la web carga mucho más rápido
+              url(transform: { maxWidth: 800 })
+              altText
             }
 
             variants(first: 20) {
               nodes {
                 id
                 title
+                availableForSale
                 price {
                   amount
                 }
@@ -46,14 +51,15 @@ export async function getCollectionProducts(handle) {
         }
       }
     }
-  }`;
+  }
+`;
 
-  const result = await shopifyFetch(query);
+export async function getCollectionProducts(handle) {
+  const result = await shopifyFetch(COLLECTION_PRODUCTS_QUERY, { handle });
 
-
-if (result.errors) {
-  console.error('ERROR SHOPIFY:', result.errors);
-}
+  if (result.errors) {
+    console.error('ERROR SHOPIFY:', result.errors);
+  }
 
   return (
     result?.data?.collection?.products?.edges?.map(({ node }) => ({
@@ -61,7 +67,8 @@ if (result.errors) {
       nombre: node.title,
       descripcion: node.description,
       imagen_url: node.featuredImage?.url || '',
-      variantes: node.variants.nodes
+      imagen_alt: node.featuredImage?.altText || '',
+      variantes: node.variants.nodes,
     })) || []
   );
 }

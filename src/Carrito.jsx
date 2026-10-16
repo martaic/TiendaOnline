@@ -10,6 +10,10 @@ const formatoEuro = new Intl.NumberFormat('es-ES', {
 });
 const formatearPrecio = (valor) => formatoEuro.format(Number(valor || 0));
 
+// ===== ENVÍO (debe coincidir con lo configurado en Shopify) =====
+const COSTE_ENVIO = 4.99;
+const ENVIO_GRATIS_DESDE = 50;
+
 function Carrito() {
   const { cart, removeFromCart, updateQuantity, cartTotal } = useCart();
   const [pagando, setPagando] = useState(false);
@@ -37,6 +41,12 @@ function Carrito() {
     );
   }
 
+  // Cálculos del envío
+  const envioGratis = cartTotal >= ENVIO_GRATIS_DESDE;
+  const costeEnvio = envioGratis ? 0 : COSTE_ENVIO;
+  const faltaParaGratis = Math.max(0, ENVIO_GRATIS_DESDE - cartTotal);
+  const progresoEnvio = Math.min(100, (cartTotal / ENVIO_GRATIS_DESDE) * 100);
+
   const handleCheckout = async () => {
     setPagando(true);
     setErrorPago('');
@@ -61,6 +71,37 @@ function Carrito() {
       <div className="row g-4">
         {/* LISTA DE PRODUCTOS */}
         <div className="col-lg-8">
+          {/* Aviso de envío gratis */}
+          <div
+            className={`card border-0 mb-3 p-3 ${envioGratis ? 'bg-success-subtle' : 'bg-light'}`}
+            aria-live="polite"
+          >
+            <p className="mb-2 fw-semibold">
+              {envioGratis ? (
+                <>¡Tienes <strong>envío gratis</strong>!</>
+              ) : (
+                <>
+                  Te faltan <strong>{formatearPrecio(faltaParaGratis)}</strong> para el{' '}
+                  <strong>envío gratis</strong>
+                </>
+              )}
+            </p>
+            <div
+              className="progress"
+              style={{ height: '8px' }}
+              role="progressbar"
+              aria-label="Progreso hacia el envío gratis"
+              aria-valuenow={Math.round(progresoEnvio)}
+              aria-valuemin="0"
+              aria-valuemax="100"
+            >
+              <div
+                className="progress-bar"
+                style={{ width: `${progresoEnvio}%`, backgroundColor: '#556b2f' }}
+              ></div>
+            </div>
+          </div>
+
           {cart.map((item) => {
             const titulo = item.title || item.nombre || 'Producto';
             const precio = Number(item.price ?? item.precio ?? 0);
@@ -155,17 +196,27 @@ function Carrito() {
               <span>{formatearPrecio(cartTotal)}</span>
             </div>
             <div className="d-flex justify-content-between mb-4">
-              <span>Gastos de envío</span>
-              <span className="text-muted small text-end">Se calculan en el siguiente paso</span>
+              <span>
+                Envío <span className="text-muted small">(GLS, 3-5 días hábiles)</span>
+              </span>
+              {envioGratis ? (
+                <span className="text-success fw-bold">Gratis</span>
+              ) : (
+                <span>{formatearPrecio(costeEnvio)}</span>
+              )}
             </div>
 
             <hr />
 
             <div className="d-flex justify-content-between mb-1">
               <span className="h5 fw-bold mb-0">Total estimado</span>
-              <span className="h5 fw-bold text-success mb-0">{formatearPrecio(cartTotal)}</span>
+              <span className="h5 fw-bold text-success mb-0">
+                {formatearPrecio(cartTotal + costeEnvio)}
+              </span>
             </div>
-            <p className="text-muted small mb-4">IVA incluido. Envío no incluido.</p>
+            <p className="text-muted small mb-4">
+              IVA incluido. Envíos solo a la península.
+            </p>
 
             {errorPago && (
               <div className="alert alert-danger small" role="alert">

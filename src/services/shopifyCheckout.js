@@ -4,6 +4,16 @@ const endpoint = `https://${shopifyConfig.storeDomain}/api/${shopifyConfig.apiVe
 
 const VARIANT_PREFIX = 'gid://shopify/ProductVariant/';
 
+const PAGO_PENDIENTE_KEY = 'elpuesto-pago-pendiente';
+
+const CART_QUERY = `
+  query cart($id: ID!) {
+    cart(id: $id) {
+      id
+    }
+  }
+`;
+
 const CART_CREATE_MUTATION = `
   mutation cartCreate($input: CartInput!) {
     cartCreate(input: $input) {
@@ -85,10 +95,56 @@ export async function createShopifyCheckout(cartItems) {
     throw new Error(userErrors[0].message);
   }
 
-  const checkoutUrl = result.data?.cartCreate?.cart?.checkoutUrl;
-  if (!checkoutUrl) {
+  const cart = result.data?.cartCreate?.cart;
+  if (!cart?.checkoutUrl) {
     throw new Error('Shopify no ha devuelto la página de pago.');
   }
 
-  return checkoutUrl;
+  // Apuntamos qué carrito de Shopify se está pagando, para saber luego si la compra terminó
+  try {
+    localStorage.setItem(PAGO_PENDIENTE_KEY, cart.id);
+  } catch {
+    // Navegación privada: no pasa nada, simplemente no se vaciará solo
+  }
+
+  return cart.checkoutUrl;
+}
+
+/**
+ * Comprueba si el último pago iniciado ya se completó.
+ * Cuando un cliente termina de pagar, Shopify "cierra" ese carrito y deja de devolverlo.
+ * Devuelve true si la compra se completó (y hay que vaciar el carrito de la web).
+ */
+export async function comprobarCompraTerminada() {
+  let cartId = null;
+  try {
+    cartId = localStorage.getItem(PAGO_PENDIENTE_KEY);
+  } catch {
+    return false;
+  }
+  if (!cartId) return false;
+
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Storefront-Access-Token': shopifyConfig.publicAccessToken,
+      },
+      body: JSON.stringify({ query: CART_QUERY, variables: { id: cartId } }),
+    });
+    if (!response.ok) return false; // si Shopify no responde, no tocamos nada
+
+    const result = await response.json();
+    if (result.errors?.length) return false;
+
+    // Si Shopify ya no devuelve el carrito, la compra se ha completado
+    if (result.data?.cart === null) {
+      localStorage.removeItem(PAGO_PENDIENTE_KEY);
+      return true;
+    }
+    return false; // el cliente aún no ha pagado: dejamos su carrito como está
+  } catch {
+    return false;
+  }
 }

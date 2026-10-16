@@ -1,55 +1,66 @@
 import './styles/Footer.css';
 import { Link } from 'react-router-dom';
 
+// Redes sociales (cámbialas solo aquí)
+const REDES = [
+  { nombre: 'Instagram', icono: 'bi-instagram', url: 'https://www.instagram.com/elpuestodeladieta/' },
+  { nombre: 'TikTok', icono: 'bi-tiktok', url: 'https://www.tiktok.com/@elpuestodeladieta' },
+];
+
 function Footer() {
+  const anioActual = new Date().getFullYear(); // se actualiza solo cada año
+
   return (
     <footer className="footer-custom">
       <div className="container py-5">
         <div className="row">
-
-          {/* Columna 1: Logo o Nombre */}
+          {/* Columna 1: Nombre */}
           <div className="col-md-4 mb-4">
-            <h5 className="text-uppercase fw-bold">El puesto de la dieta</h5>
-            <p>Calidad y tradición en cada bocado. Especialistas en encurtidos, frutos secos y productos artesanales.</p>
+            <h2 className="text-uppercase fw-bold fs-5">El Puesto de la Dieta</h2>
+            <p>
+              Calidad y tradición en cada bocado. Especialistas en encurtidos, frutos secos y
+              productos artesanales.
+            </p>
           </div>
 
           {/* Columna 2: Enlaces rápidos */}
-          {/* Columna 2: Enlaces rápidos */}
-          <div className="col-md-4 mb-4">
-            <h5 className="text-uppercase fw-bold">Enlaces</h5>
-
+          <nav className="col-md-4 mb-4" aria-label="Enlaces del pie de página">
+            <h2 className="text-uppercase fw-bold fs-5">Enlaces</h2>
             <ul className="list-unstyled">
               <li>
                 <Link to="/sobre-nosotros" className="footer-link">
-                  Sobre Nosotros
+                  Sobre nosotros
                 </Link>
               </li>
-
               <li>
                 <Link to="/politica-envios" className="footer-link">
-                  Política de Envíos
+                  Política de envíos
                 </Link>
               </li>
-
               <li>
                 <Link to="/contacto" className="footer-link">
                   Contacto
                 </Link>
               </li>
             </ul>
+          </nav>
 
-          </div>
-
-          {/* Columna 3: Redes Sociales */}
+          {/* Columna 3: Redes sociales */}
           <div className="col-md-4 mb-4 text-center">
-            <h5 className="text-uppercase fw-bold">Síguenos</h5>
+            <h2 className="text-uppercase fw-bold fs-5">Síguenos</h2>
             <div className="d-flex justify-content-center gap-3 mt-3">
-              <a href="https://www.instagram.com/elpuestodeladieta/" target="_blank" rel="noopener noreferrer" className="social-icon">
-                <i className="bi bi-instagram"></i>
-              </a>
-              <a href="https://www.tiktok.com/@elpuestodeladieta" target="https://www.instagram.com/elpuestodeladieta/" rel="https://www.instagram.com/elpuestodeladieta/" className="social-icon">
-                <i className="bi bi-tiktok"></i>
-              </a>
+              {REDES.map((red) => (
+                <a
+                  key={red.nombre}
+                  href={red.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="social-icon"
+                  aria-label={`${red.nombre} de El Puesto de la Dieta (se abre en una pestaña nueva)`}
+                >
+                  <i className={`bi ${red.icono}`}></i>
+                </a>
+              ))}
             </div>
           </div>
         </div>
@@ -57,7 +68,9 @@ function Footer() {
         <hr className="bg-light" />
 
         <div className="text-center pt-3">
-          <p className="mb-0">&copy; 2026 El Puesto de la Dieta - Todos los derechos reservados.</p>
+          <p className="mb-0">
+            &copy; {anioActual} El Puesto de la Dieta. Todos los derechos reservados.
+          </p>
         </div>
       </div>
     </footer>

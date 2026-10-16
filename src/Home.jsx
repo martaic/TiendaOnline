@@ -11,6 +11,17 @@ const formatoEuro = new Intl.NumberFormat('es-ES', {
 });
 const formatearPrecio = (valor) => formatoEuro.format(Number(valor || 0));
 
+// Pestañas de categorías (para añadir o cambiar una, tócala solo aquí)
+// "icono" puede ser un dibujo de la carpeta public/iconos/ o un emoji
+const CATEGORIAS = [
+  { nombre: 'Encurtidos', ruta: '/aceitunas', icono: '/iconos/encurtidos.png' },
+  { nombre: 'Gildas', ruta: '/gildas', icono: '/iconos/gildas.png' },
+  { nombre: 'Especias', ruta: '/especias', icono: '/iconos/especias.png' },
+  { nombre: 'Dulces', ruta: '/dulces', icono: '/iconos/dulces.png' },
+  { nombre: 'Frutos secos', ruta: '/golosinas', icono: '🥜' },
+  { nombre: 'Fritos', ruta: '/fritos', icono: '/iconos/fritos.png' },
+];
+
 // Tarjeta de producto reutilizable para Destacados y Novedades
 function TarjetaProducto({ item, variante = 'destacado', onAdd }) {
   const [anadido, setAnadido] = useState(false);
@@ -131,14 +142,22 @@ function Home() {
       </h1>
 
       {/* 1. Pestañas de categorías */}
-      <nav className="pestañas py-2 bg-light shadow-sm" aria-label="Categorías">
-        <ul className="nav justify-content-center">
-          <li className="nav-item"><Link className="nav-link text-success fw-bold" to="/aceitunas">Encurtidos</Link></li>
-          <li className="nav-item"><Link className="nav-link text-dark" to="/gildas">Gildas</Link></li>
-          <li className="nav-item"><Link className="nav-link text-dark" to="/especias">Especias</Link></li>
-          <li className="nav-item"><Link className="nav-link text-dark" to="/dulces">Dulces</Link></li>
-          <li className="nav-item"><Link className="nav-link text-dark" to="/golosinas">Frutos Secos</Link></li>
-          <li className="nav-item"><Link className="nav-link text-dark" to="/fritos">Fritos</Link></li>
+      <nav className="categorias" aria-label="Categorías">
+        <ul className="categorias-lista">
+          {CATEGORIAS.map((cat) => (
+            <li key={cat.ruta}>
+              <Link className="categoria-pill" to={cat.ruta}>
+                <span className="categoria-icono" aria-hidden="true">
+                  {cat.icono.startsWith('/') ? (
+                    <img src={cat.icono} alt="" width="28" height="28" />
+                  ) : (
+                    cat.icono
+                  )}
+                </span>
+                {cat.nombre}
+              </Link>
+            </li>
+          ))}
         </ul>
       </nav>
 
@@ -176,7 +195,7 @@ function Home() {
       {destacados.length === 0 && novedades.length === 0 && (
         <div className="container py-5 text-center text-muted">
           <p className="mb-3">Estamos preparando el puesto. Echa un vistazo a nuestras categorías:</p>
-          <Link to="/aceitunas" className="btn btn-success rounded-pill px-4">Ver productos</Link>
+          <Link to="/aceitunas" className="btn btn-success rounded-pill px-4" style={{ backgroundColor: '#556b2f', border: 'none' }}>Ver productos</Link>
         </div>
       )}
     </div>

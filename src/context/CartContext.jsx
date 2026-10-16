@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { comprobarCompraTerminada } from '../services/shopifyCheckout';
 
 const CartContext = createContext();
 
@@ -32,6 +33,13 @@ export const CartProvider = ({ children }) => {
       // Navegación privada o almacenamiento lleno: el carrito sigue funcionando, solo no se guarda
     }
   }, [cart]);
+
+  // Al volver a la web después de pagar en Shopify, vaciamos el carrito automáticamente
+  useEffect(() => {
+    comprobarCompraTerminada().then((terminada) => {
+      if (terminada) setCart([]);
+    });
+  }, []);
 
   // 1. Añadir al carrito
   const addToCart = (product) => {

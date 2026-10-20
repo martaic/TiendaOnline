@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 // ===== DATOS DE ENVÍO (deben coincidir con lo configurado en Shopify) =====
-const TRANSPORTISTA = 'GLS';
+const TRANSPORTISTA = 'TIPSA';
 const COSTE_ENVIO = '4,99 €';
 const ENVIO_GRATIS_DESDE = '50 €';
 const PLAZO = '3 a 5 días hábiles';

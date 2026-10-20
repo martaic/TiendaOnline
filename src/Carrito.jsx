@@ -197,7 +197,7 @@ function Carrito() {
             </div>
             <div className="d-flex justify-content-between mb-4">
               <span>
-                Envío <span className="text-muted small">(GLS, 3-5 días hábiles)</span>
+                Envío <span className="text-muted small">(TIPSA, 3-5 días hábiles)</span>
               </span>
               {envioGratis ? (
                 <span className="text-success fw-bold">Gratis</span>

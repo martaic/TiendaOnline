@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 // ===== DATOS DE CONTACTO (cámbialos solo aquí) =====
 const TELEFONO = '633 683 722';
 const WHATSAPP = '34633683722'; // con prefijo de España y sin espacios. Déjalo vacío ('') si no usáis WhatsApp
-const EMAIL = ''; // ← cuando creéis el correo, ponlo aquí: 'info@elpuestodeladieta.es'
+const EMAIL = 'elpuestodeladieta@gmail.com'; // déjalo vacío ('') para ocultarlo
 const DIRECCION = 'Calle Bobadilla, 2';
 const LOCALIDAD = 'Jaraíz de la Vera (Cáceres)';
 
@@ -74,7 +74,9 @@ function Contacto() {
               <br />
               {LOCALIDAD}
             </address>
-            
+            <p className="small text-muted mb-0">
+              Almacén de preparación de pedidos. No hay venta al público.
+            </p>
           </div>
         </div>
       </div>

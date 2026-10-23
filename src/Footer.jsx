@@ -7,6 +7,15 @@ const REDES = [
   { nombre: 'TikTok', icono: 'bi-tiktok', url: 'https://www.tiktok.com/@elpuestodeladieta' },
 ];
 
+// Políticas legales: se editan en Shopify (Configuración → Políticas)
+const URL_POLITICAS = 'https://tienda.elpuestodeladieta.es/policies';
+const LEGALES = [
+  { nombre: 'Aviso legal', ruta: 'legal-notice' },
+  { nombre: 'Privacidad', ruta: 'privacy-policy' },
+  { nombre: 'Términos del servicio', ruta: 'terms-of-service' },
+  { nombre: 'Devoluciones y reembolsos', ruta: 'refund-policy' },
+];
+
 function Footer() {
   const anioActual = new Date().getFullYear(); // se actualiza solo cada año
 
@@ -68,6 +77,20 @@ function Footer() {
         <hr className="bg-light" />
 
         <div className="text-center pt-3">
+          <ul className="list-inline small mb-2">
+            {LEGALES.map((legal) => (
+              <li key={legal.ruta} className="list-inline-item mx-2">
+                <a
+                  href={`${URL_POLITICAS}/${legal.ruta}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="footer-link"
+                >
+                  {legal.nombre}
+                </a>
+              </li>
+            ))}
+          </ul>
           <p className="mb-0">
             &copy; {anioActual} El Puesto de la Dieta. Todos los derechos reservados.
           </p>

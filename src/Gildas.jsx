@@ -116,11 +116,18 @@ function TarjetaGilda({ item, onVerInfo, onAdd }) {
 
   const agotado = varianteActual.availableForSale === false;
   const tieneVariasOpciones = variantes.length > 1;
+  // Si solo hay una opción (p. ej. "250 gr"), la mostramos junto al precio.
+  // "Default Title" es lo que pone Shopify cuando el producto no tiene opciones.
+  const cantidad =
+    !tieneVariasOpciones && varianteActual.title !== 'Default Title' ? varianteActual.title : null;
 
   const handleAdd = () => {
     onAdd({
       id: varianteActual.id,
-      title: tieneVariasOpciones ? `${item.nombre} (${varianteActual.title})` : item.nombre,
+      title:
+        tieneVariasOpciones || cantidad
+          ? `${item.nombre} (${varianteActual.title})`
+          : item.nombre,
       price: Number(varianteActual.price?.amount || 0),
       image: item.imagen_url,
     });
@@ -198,6 +205,7 @@ function TarjetaGilda({ item, onVerInfo, onAdd }) {
 
           <p className="fs-4 fw-bold text-success mt-auto mb-3">
             {formatearPrecio(varianteActual.price?.amount)}
+            {cantidad && <span className="fs-6 fw-normal text-muted"> · {cantidad}</span>}
           </p>
 
           <button

@@ -31,6 +31,8 @@ function TarjetaProducto({ item, variante = 'destacado', onAdd }) {
   if (!varianteShopify) return null;
 
   const precio = Number(varianteShopify.price?.amount || 0);
+  // Cantidad de la variante (p. ej. "250 gr"). "Default Title" = producto sin opciones
+  const cantidad = varianteShopify.title !== 'Default Title' ? varianteShopify.title : null;
 
   const agotado = varianteShopify.availableForSale === false;
   const esNovedad = variante === 'novedad';
@@ -39,7 +41,7 @@ function TarjetaProducto({ item, variante = 'destacado', onAdd }) {
     onAdd({
       id: varianteShopify.id, // ID de la variante (gid://shopify/ProductVariant/...)
       title:
-        item.variantes.length > 1
+        cantidad
           ? `${item.nombre} (${varianteShopify.title})`
           : item.nombre,
       price: precio,
@@ -78,6 +80,7 @@ function TarjetaProducto({ item, variante = 'destacado', onAdd }) {
 
         <p className="card-text fw-bold text-success">
           {formatearPrecio(precio)}
+          {cantidad && <span className="fw-normal text-muted small"> · {cantidad}</span>}
         </p>
 
         <button

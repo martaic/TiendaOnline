@@ -12,6 +12,7 @@ import Golosinas from './Golosinas';
 import Carrito from './Carrito';
 import Fritos from './Fritos';
 import Envases from './Envases';
+import Caramelos from './Caramelos';
 import SobreNosotros from './SobreNosotros';
 import PoliticaEnvios from './PoliticaEnvios';
 import Contacto from './Contacto';
@@ -28,6 +29,7 @@ function App() {
           <Route path="/especias" element={<Especias />} />
           <Route path="/fritos" element={<Fritos />} />
           <Route path="/envases" element={<Envases />} />
+          <Route path="/caramelos" element={<Caramelos />} />
           <Route path="/gildas" element={<Gildas />} />
           <Route path="/golosinas" element={<Golosinas />} />
           <Route path="/carrito" element={<Carrito />} />

@@ -275,7 +275,7 @@ function Caramelos() {
           Nuestros Caramelos
         </h1>
         <p className="lead text-muted">
-          Un capricho dulce para cualquier momento del día.
+          Pequeños caprichos para llevar siempre en el bolsillo
         </p>
         <hr className="w-25 mx-auto border-success border-2" />
       </div>

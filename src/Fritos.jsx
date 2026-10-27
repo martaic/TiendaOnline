@@ -47,7 +47,7 @@ function TarjetaFrito({ item, onVerInfo, onAdd }) {
   return (
     <div className="col-12 col-sm-6 col-md-4 col-lg-3">
       <div className="card h-100 shadow-sm border-0 product-card">
-        {/* La foto abre la ficha con ingredientes */}
+        {/* La foto abre la ficha con ingredientes y alérgenos */}
         <button
           type="button"
           className="p-0 border-0 bg-transparent"
@@ -77,27 +77,14 @@ function TarjetaFrito({ item, onVerInfo, onAdd }) {
         <div className="card-body d-flex flex-column text-center">
           <h2 className="card-title fw-bold fs-5">{item.nombre}</h2>
 
-          {/* Descripción corta (máx. 3 líneas); el texto completo está en la ficha */}
-          {item.descripcion && (
-            <p
-              className="text-muted small mb-1"
-              style={{
-                display: '-webkit-box',
-                WebkitLineClamp: 3,
-                WebkitBoxOrient: 'vertical',
-                overflow: 'hidden',
-              }}
-            >
-              {item.descripcion}
-            </p>
-          )}
 
+          {/* Enlace discreto: los ingredientes y alérgenos se ven en la ficha */}
           <button
             type="button"
-            className="btn btn-link text-success small mb-3 p-0"
+            className="btn btn-link text-muted small mb-3 p-0 text-decoration-none"
             onClick={() => onVerInfo(item)}
           >
-            Ver ingredientes e información
+            <i className="bi bi-info-circle me-1" aria-hidden="true"></i>Ingredientes
           </button>
 
           {tieneVariasOpciones && (
@@ -195,16 +182,18 @@ function ModalProducto({ producto, onClose }) {
               />
             )}
 
-            <div className="text-start mt-3">
-              <h3 className="fw-bold text-success fs-6">📋 Ingredientes y alérgenos:</h3>
-              <p
-                className="text-muted bg-light p-3 rounded"
-                style={{ whiteSpace: 'pre-line', lineHeight: '1.6' }}
-              >
-                {producto.descripcion ||
-                  'No se han especificado los ingredientes de este artículo.'}
-              </p>
-            </div>
+            {/* Si el producto no tiene descripción en Shopify (p. ej. el coco), no se muestra este apartado */}
+            {producto.descripcion && (
+              <div className="text-start mt-3">
+                <h3 className="fw-bold text-success fs-6">Ingredientes y alérgenos:</h3>
+                <p
+                  className="text-muted bg-light p-3 rounded"
+                  style={{ whiteSpace: 'pre-line', lineHeight: '1.6' }}
+                >
+                  {producto.descripcion}
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="modal-footer border-0 p-3">

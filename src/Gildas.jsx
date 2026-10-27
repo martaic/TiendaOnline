@@ -88,15 +88,20 @@ function ModalIngredientes({ producto, onClose }) {
           />
         )}
       </div>
-      <h3 className="fw-bold text-success fs-6 mt-3">
-        {esMix(producto) ? 'Gildas que lleva el mix:' : 'Ingredientes y alérgenos:'}
-      </h3>
-      <p className="text-muted bg-light p-3 rounded" style={{ whiteSpace: 'pre-line', lineHeight: '1.6' }}>
-        {producto.descripcion ||
-          (esMix(producto)
-            ? 'Preparamos el mix con una selección de todas nuestras gildas.'
-            : 'No se han especificado los ingredientes de este artículo.')}
-      </p>
+      {/* Si no hay descripción en Shopify, no se muestra el apartado (salvo en el mix) */}
+      {(producto.descripcion || esMix(producto)) && (
+        <>
+          <h3 className="fw-bold text-success fs-6 mt-3">
+            {esMix(producto) ? 'Gildas que lleva el mix:' : 'Ingredientes y alérgenos:'}
+          </h3>
+          <p
+            className="text-muted bg-light p-3 rounded"
+            style={{ whiteSpace: 'pre-line', lineHeight: '1.6' }}
+          >
+            {producto.descripcion || 'Preparamos el mix con una selección de todas nuestras gildas.'}
+          </p>
+        </>
+      )}
     </Modal>
   );
 }
@@ -174,12 +179,19 @@ function TarjetaGilda({ item, onVerInfo, onAdd }) {
           <h2 className="fw-bold fs-4">{item.nombre}</h2>
 
 
+          {/* Enlace discreto: ingredientes y alérgenos (o qué lleva el mix) en la ficha */}
           <button
             type="button"
-            className="btn btn-link text-success small mb-3 p-0"
+            className={`btn btn-link small mb-3 p-0 ${mix ? 'text-success' : 'text-muted text-decoration-none'}`}
             onClick={() => onVerInfo(item)}
           >
-            {mix ? 'Ver qué gildas lleva' : 'Ver ingredientes e información'}
+            {mix ? (
+              'Ver qué gildas lleva'
+            ) : (
+              <>
+                <i className="bi bi-info-circle me-1" aria-hidden="true"></i>Ingredientes
+              </>
+            )}
           </button>
 
           {tieneVariasOpciones && (

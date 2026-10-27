@@ -20,6 +20,7 @@ const CATEGORIAS = [
   { nombre: 'Dulces', ruta: '/dulces', icono: '/iconos/dulces.png' },
   { nombre: 'Frutos secos', ruta: '/golosinas', icono: '🥜' },
   { nombre: 'Fritos', ruta: '/fritos', icono: '/iconos/fritos.png' },
+  { nombre: 'Envases', ruta: '/envases', icono: '/iconos/envases.png' },
 ];
 
 // Tarjeta de producto reutilizable para Destacados y Novedades

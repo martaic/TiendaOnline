@@ -5,6 +5,7 @@ import Home from './Home';
 import Aceitunas from './Aceitunas';
 import Dulces from './Dulces';
 import Navbar from './Navbar';
+import BarraAvisos from './BarraAvisos';
 import Footer from './Footer';
 import Especias from './Especias';
 import Gildas from './Gildas';
@@ -21,6 +22,7 @@ function App() {
   return (
     <CartProvider>
       <BrowserRouter>
+        <BarraAvisos />
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />

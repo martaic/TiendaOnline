@@ -10,7 +10,7 @@ import { Link } from 'react-router-dom';
 // hasta:  (opcional) fecha en la que DEJA de verse sola (AAAA-MM-DD). Ese día ya no aparece.
 // fondo:  color de la barra
 const AVISO = {
-  texto: 'Prepara tu bolsa de caramelos antes de que lleguen los fantasmas',
+  texto: 'Halloween: Prepara tu bolsa de caramelos antes de que lleguen los fantasmas',
   enlace: { ruta: '/caramelos', texto: 'Ver caramelos' },
   hasta: '2026-11-01',
   fondo: '#4b2470', // morado Halloween (para Navidad, por ejemplo '#8b1e1e')

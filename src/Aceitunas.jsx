@@ -110,6 +110,9 @@ function TarjetaAceituna({ item, onVerInfo, onAdd }) {
           <p className="fs-4 fw-bold text-success mt-auto mb-3">
             {formatearPrecio(varianteActual.price?.amount)}
             {cantidad && <span className="fs-6 fw-normal text-muted"> · {cantidad}</span>}
+            <span className="d-block fw-normal text-muted" style={{ fontSize: '0.75rem' }}>
+              IVA incluido
+            </span>
           </p>
 
           <button

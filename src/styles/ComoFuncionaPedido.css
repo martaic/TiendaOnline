@@ -1,0 +1,17 @@
+/* "¿Qué pasa después de pagar?" en el carrito: plegable */
+.como-funciona-titulo {
+    list-style: none;              /* quita el triángulo por defecto */
+    cursor: pointer;
+    color: #3e4f22;
+    border-radius: inherit;
+}
+.como-funciona-titulo::-webkit-details-marker { display: none; } /* Safari */
+.como-funciona-titulo:hover { background-color: #f3f6ec; }
+.como-funciona-titulo:focus-visible {
+    outline: 3px solid #556b2f;
+    outline-offset: -3px;
+}
+
+/* La flecha gira al abrir */
+.como-funciona-flecha { transition: transform 0.2s ease; }
+.como-funciona[open] .como-funciona-flecha { transform: rotate(180deg); }

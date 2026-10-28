@@ -3,6 +3,7 @@ import './styles/Home.css';
 import { Link } from 'react-router-dom';
 import { useCart } from './context/CartContext';
 import { getCollectionProducts } from './shopifyClient';
+import PreguntasFrecuentes from './PreguntasFrecuentes';
 
 // Formatea precios al estilo español: 3,50 €
 const formatoEuro = new Intl.NumberFormat('es-ES', {
@@ -83,6 +84,9 @@ function TarjetaProducto({ item, variante = 'destacado', onAdd }) {
         <p className="card-text fw-bold text-success">
           {formatearPrecio(precio)}
           {cantidad && <span className="fw-normal text-muted small"> · {cantidad}</span>}
+          <span className="d-block fw-normal text-muted" style={{ fontSize: '0.75rem' }}>
+            IVA incluido
+          </span>
         </p>
 
         <button
@@ -203,6 +207,9 @@ function Home() {
           <Link to="/aceitunas" className="btn btn-success rounded-pill px-4" style={{ backgroundColor: '#556b2f', border: 'none' }}>Ver productos</Link>
         </div>
       )}
+
+      {/* 4. Preguntas frecuentes */}
+      <PreguntasFrecuentes />
     </div>
   );
 }

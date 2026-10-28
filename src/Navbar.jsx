@@ -27,22 +27,29 @@ function Navbar() {
           />
         </Link>
 
-        {/* CARRITO */}
-        <Link
-          to="/carrito"
-          className="text-white position-relative d-flex align-items-center"
-          aria-label={cartCount > 0 ? `Ver carrito (${cartCount} productos)` : 'Ver carrito'}
-        >
-          <i className="bi bi-basket2-fill" style={{ fontSize: TAM_ICONO, lineHeight: 1 }}></i>
-          {cartCount > 0 && (
-            <span
-              className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-              style={{ fontSize: '0.8rem' }}
-            >
-              {cartCount}
-            </span>
-          )}
-        </Link>
+        <div className="d-flex align-items-center gap-4">
+          {/* BUSCADOR */}
+          <Link to="/buscar" className="text-white d-flex align-items-center" aria-label="Buscar productos">
+            <i className="bi bi-search" style={{ fontSize: 'clamp(1.6rem, 3.2vw, 2.3rem)', lineHeight: 1 }}></i>
+          </Link>
+
+          {/* CARRITO */}
+          <Link
+            to="/carrito"
+            className="text-white position-relative d-flex align-items-center"
+            aria-label={cartCount > 0 ? `Ver carrito (${cartCount} productos)` : 'Ver carrito'}
+          >
+            <i className="bi bi-basket2-fill" style={{ fontSize: TAM_ICONO, lineHeight: 1 }}></i>
+            {cartCount > 0 && (
+              <span
+                className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                style={{ fontSize: '0.8rem' }}
+              >
+                {cartCount}
+              </span>
+            )}
+          </Link>
+        </div>
       </div>
     </nav>
   );

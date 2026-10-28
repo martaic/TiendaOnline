@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useCart } from './context/CartContext';
 import { Link } from 'react-router-dom';
 import { createShopifyCheckout } from './services/shopifyCheckout';
+import ComoFuncionaPedido from './ComoFuncionaPedido';
 
 // Formatea precios al estilo español: 3,50 €
 const formatoEuro = new Intl.NumberFormat('es-ES', {
@@ -251,6 +252,12 @@ function Carrito() {
               Pago seguro con Shopify
             </p>
           </div>
+        </div>
+
+        {/* Pasos del pedido: qué ocurre después de pagar.
+            Va después del resumen para que en el móvil el botón de pagar quede más arriba */}
+        <div className="col-lg-8">
+          <ComoFuncionaPedido />
         </div>
       </div>
     </div>

@@ -1,0 +1,55 @@
+/* Preguntas frecuentes: tarjetas que se despliegan al pulsar */
+.faq {
+    max-width: 760px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.faq-item {
+    background-color: #ffffff;
+    border: 1px solid #e6ebdc;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(85, 107, 47, 0.06);
+    overflow: hidden;
+}
+
+.faq-pregunta {
+    list-style: none;              /* quita el triángulo por defecto */
+    cursor: pointer;
+    padding: 1rem 3rem 1rem 1.25rem;
+    font-weight: 600;
+    color: #3e4f22;
+    position: relative;
+}
+.faq-pregunta::-webkit-details-marker { display: none; } /* Safari */
+
+/* Icono + / − a la derecha */
+.faq-pregunta::after {
+    content: '+';
+    position: absolute;
+    right: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: #556b2f;
+    line-height: 1;
+}
+.faq-item[open] .faq-pregunta::after { content: '−'; }
+
+.faq-pregunta:hover { background-color: #f3f6ec; }
+.faq-pregunta:focus-visible {
+    outline: 3px solid #556b2f;
+    outline-offset: -3px;
+}
+
+.faq-respuesta {
+    padding: 0 1.25rem 1.25rem;
+    color: #555;
+    line-height: 1.6;
+}
+.faq-respuesta a { color: #556b2f; font-weight: 600; }
+
+/* El título va centrado (Home.css pone los títulos a la izquierda) */
+.section-title.faq-titulo { text-align: center !important; }

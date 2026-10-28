@@ -47,6 +47,11 @@ function Footer() {
                 </Link>
               </li>
               <li>
+                <Link to="/preguntas-frecuentes" className="footer-link">
+                  Preguntas frecuentes
+                </Link>
+              </li>
+              <li>
                 <Link to="/contacto" className="footer-link">
                   Contacto
                 </Link>

@@ -17,6 +17,8 @@ import Caramelos from './Caramelos';
 import SobreNosotros from './SobreNosotros';
 import PoliticaEnvios from './PoliticaEnvios';
 import Contacto from './Contacto';
+import Buscar from './Buscar';
+import PaginaPreguntas from './PaginaPreguntas';
 
 function App() {
   return (
@@ -38,6 +40,8 @@ function App() {
           <Route path="/sobre-nosotros" element={<SobreNosotros />} />
           <Route path="/politica-envios" element={<PoliticaEnvios />} />
           <Route path="/contacto" element={<Contacto />} />
+          <Route path="/buscar" element={<Buscar />} />
+          <Route path="/preguntas-frecuentes" element={<PaginaPreguntas />} />
         </Routes>
         <Footer />
       </BrowserRouter>

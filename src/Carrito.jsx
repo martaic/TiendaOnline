@@ -12,7 +12,9 @@ const formatearPrecio = (valor) => formatoEuro.format(Number(valor || 0));
 
 // ===== ENVÍO (debe coincidir con lo configurado en Shopify) =====
 const COSTE_ENVIO = 4.99;
-const ENVIO_GRATIS_DESDE = 50;
+// Envío gratis desactivado de momento. Para volver a activarlo, pon el importe (p. ej. 50)
+// y crea también la tarifa gratuita en Shopify
+const ENVIO_GRATIS_DESDE = null;
 
 function Carrito() {
   const { cart, removeFromCart, updateQuantity, cartTotal } = useCart();
@@ -42,10 +44,11 @@ function Carrito() {
   }
 
   // Cálculos del envío
-  const envioGratis = cartTotal >= ENVIO_GRATIS_DESDE;
+  const hayEnvioGratis = ENVIO_GRATIS_DESDE !== null;
+  const envioGratis = hayEnvioGratis && cartTotal >= ENVIO_GRATIS_DESDE;
   const costeEnvio = envioGratis ? 0 : COSTE_ENVIO;
-  const faltaParaGratis = Math.max(0, ENVIO_GRATIS_DESDE - cartTotal);
-  const progresoEnvio = Math.min(100, (cartTotal / ENVIO_GRATIS_DESDE) * 100);
+  const faltaParaGratis = hayEnvioGratis ? Math.max(0, ENVIO_GRATIS_DESDE - cartTotal) : 0;
+  const progresoEnvio = hayEnvioGratis ? Math.min(100, (cartTotal / ENVIO_GRATIS_DESDE) * 100) : 0;
 
   const handleCheckout = async () => {
     setPagando(true);
@@ -71,36 +74,38 @@ function Carrito() {
       <div className="row g-4">
         {/* LISTA DE PRODUCTOS */}
         <div className="col-lg-8">
-          {/* Aviso de envío gratis */}
-          <div
-            className={`card border-0 mb-3 p-3 ${envioGratis ? 'bg-success-subtle' : 'bg-light'}`}
-            aria-live="polite"
-          >
-            <p className="mb-2 fw-semibold">
-              {envioGratis ? (
-                <>¡Tienes <strong>envío gratis</strong>!</>
-              ) : (
-                <>
-                  Te faltan <strong>{formatearPrecio(faltaParaGratis)}</strong> para el{' '}
-                  <strong>envío gratis</strong>
-                </>
-              )}
-            </p>
+          {/* Aviso de envío gratis (solo si está activado) */}
+          {hayEnvioGratis && (
             <div
-              className="progress"
-              style={{ height: '8px' }}
-              role="progressbar"
-              aria-label="Progreso hacia el envío gratis"
-              aria-valuenow={Math.round(progresoEnvio)}
-              aria-valuemin="0"
-              aria-valuemax="100"
+              className={`card border-0 mb-3 p-3 ${envioGratis ? 'bg-success-subtle' : 'bg-light'}`}
+              aria-live="polite"
             >
+              <p className="mb-2 fw-semibold">
+                {envioGratis ? (
+                  <>¡Tienes <strong>envío gratis</strong>!</>
+                ) : (
+                  <>
+                    Te faltan <strong>{formatearPrecio(faltaParaGratis)}</strong> para el{' '}
+                    <strong>envío gratis</strong>
+                  </>
+                )}
+              </p>
               <div
-                className="progress-bar"
-                style={{ width: `${progresoEnvio}%`, backgroundColor: '#556b2f' }}
-              ></div>
+                className="progress"
+                style={{ height: '8px' }}
+                role="progressbar"
+                aria-label="Progreso hacia el envío gratis"
+                aria-valuenow={Math.round(progresoEnvio)}
+                aria-valuemin="0"
+                aria-valuemax="100"
+              >
+                <div
+                  className="progress-bar"
+                  style={{ width: `${progresoEnvio}%`, backgroundColor: '#556b2f' }}
+                ></div>
+              </div>
             </div>
-          </div>
+          )}
 
           {cart.map((item) => {
             const titulo = item.title || item.nombre || 'Producto';

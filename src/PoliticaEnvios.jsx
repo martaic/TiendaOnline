@@ -4,8 +4,12 @@ import { Link } from 'react-router-dom';
 // ===== DATOS DE ENVÍO (deben coincidir con lo configurado en Shopify) =====
 const TRANSPORTISTA = 'TIPSA';
 const COSTE_ENVIO = '4,99 €';
-const ENVIO_GRATIS_DESDE = '50 €';
+// Envío gratis desactivado de momento. Para volver a activarlo, pon el importe (p. ej. '50 €')
+const ENVIO_GRATIS_DESDE = null;
 const PLAZO = '3 a 5 días hábiles';
+
+// Con envío gratis hay 4 tarjetas en el resumen; sin él, 3
+const COLUMNA = ENVIO_GRATIS_DESDE ? 'col-6 col-md-3' : 'col-12 col-sm-4';
 
 function PoliticaEnvios() {
   useEffect(() => {
@@ -22,28 +26,30 @@ function PoliticaEnvios() {
 
       {/* Resumen rápido */}
       <div className="row g-3 mb-5 text-center">
-        <div className="col-6 col-md-3">
+        <div className={COLUMNA}>
           <div className="card border-0 shadow-sm h-100 p-3">
             <i className="bi bi-truck fs-2 text-success"></i>
             <div className="fw-bold mt-2">{TRANSPORTISTA}</div>
             <div className="small text-muted">a domicilio</div>
           </div>
         </div>
-        <div className="col-6 col-md-3">
+        <div className={COLUMNA}>
           <div className="card border-0 shadow-sm h-100 p-3">
             <i className="bi bi-cash-coin fs-2 text-success"></i>
             <div className="fw-bold mt-2">{COSTE_ENVIO}</div>
             <div className="small text-muted">IVA incluido</div>
           </div>
         </div>
-        <div className="col-6 col-md-3">
-          <div className="card border-0 shadow-sm h-100 p-3">
-            <i className="bi bi-gift fs-2 text-success"></i>
-            <div className="fw-bold mt-2">Gratis</div>
-            <div className="small text-muted">desde {ENVIO_GRATIS_DESDE}</div>
+        {ENVIO_GRATIS_DESDE && (
+          <div className={COLUMNA}>
+            <div className="card border-0 shadow-sm h-100 p-3">
+              <i className="bi bi-gift fs-2 text-success"></i>
+              <div className="fw-bold mt-2">Gratis</div>
+              <div className="small text-muted">desde {ENVIO_GRATIS_DESDE}</div>
+            </div>
           </div>
-        </div>
-        <div className="col-6 col-md-3">
+        )}
+        <div className={COLUMNA}>
           <div className="card border-0 shadow-sm h-100 p-3">
             <i className="bi bi-clock fs-2 text-success"></i>
             <div className="fw-bold mt-2">{PLAZO}</div>
@@ -60,9 +66,13 @@ function PoliticaEnvios() {
 
       <h2 className="fs-4 fw-bold mt-4">Gastos de envío</h2>
       <p>
-        El envío cuesta <strong>{COSTE_ENVIO}</strong> (IVA incluido) y es{' '}
-        <strong>gratis en pedidos a partir de {ENVIO_GRATIS_DESDE}</strong>. Verás el importe
-        exacto antes de finalizar la compra.
+        El envío cuesta <strong>{COSTE_ENVIO}</strong> (IVA incluido)
+        {ENVIO_GRATIS_DESDE && (
+          <>
+            {' '}y es <strong>gratis en pedidos a partir de {ENVIO_GRATIS_DESDE}</strong>
+          </>
+        )}
+        . Verás el importe exacto antes de finalizar la compra.
       </p>
 
       <h2 className="fs-4 fw-bold mt-4">Plazos de entrega</h2>

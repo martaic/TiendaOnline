@@ -39,8 +39,8 @@ const PREGUNTAS = [
     pregunta: '¿Cuánto cuesta el envío y cuánto tarda?',
     respuesta: (
       <>
-        El envío cuesta <strong>4,99 €</strong> (IVA incluido) y llega con TIPSA en{' '}
-        <strong>3 a 5 días hábiles</strong>. Cuando el pedido salga, te enviaremos el número de
+        El envío cuesta <strong>6,90 €</strong> (IVA incluido) y llega con TIPSA en{' '}
+        <strong>24-48 horas laborables</strong>. Cuando el pedido salga, te enviaremos el número de
         seguimiento por email. Más detalles en nuestra{' '}
         <Link to="/politica-envios">política de envíos</Link>.
       </>

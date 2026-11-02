@@ -12,7 +12,7 @@ const formatoEuro = new Intl.NumberFormat('es-ES', {
 const formatearPrecio = (valor) => formatoEuro.format(Number(valor || 0));
 
 // ===== ENVÍO (debe coincidir con lo configurado en Shopify) =====
-const COSTE_ENVIO = 4.99;
+const COSTE_ENVIO = 6.9;
 // Envío gratis desactivado de momento. Para volver a activarlo, pon el importe (p. ej. 50)
 // y crea también la tarifa gratuita en Shopify
 const ENVIO_GRATIS_DESDE = null;
@@ -203,7 +203,7 @@ function Carrito() {
             </div>
             <div className="d-flex justify-content-between mb-4">
               <span>
-                Envío <span className="text-muted small">(TIPSA, 3-5 días hábiles)</span>
+                Envío <span className="text-muted small">(TIPSA, 24-48 h laborables)</span>
               </span>
               {envioGratis ? (
                 <span className="text-success fw-bold">Gratis</span>

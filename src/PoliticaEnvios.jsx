@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom';
 
 // ===== DATOS DE ENVÍO (deben coincidir con lo configurado en Shopify) =====
 const TRANSPORTISTA = 'TIPSA';
-const COSTE_ENVIO = '4,99 €';
+const COSTE_ENVIO = '6,90 €';
 // Envío gratis desactivado de momento. Para volver a activarlo, pon el importe (p. ej. '50 €')
 const ENVIO_GRATIS_DESDE = null;
-const PLAZO = '3 a 5 días hábiles';
+const PLAZO = '24-48 horas laborables';
 
 // Con envío gratis hay 4 tarjetas en el resumen; sin él, 3
 const COLUMNA = ENVIO_GRATIS_DESDE ? 'col-6 col-md-3' : 'col-12 col-sm-4';
@@ -78,7 +78,7 @@ function PoliticaEnvios() {
       <h2 className="fs-4 fw-bold mt-4">Plazos de entrega</h2>
       <p>
         Los pedidos se entregan con {TRANSPORTISTA} en un plazo de <strong>{PLAZO}</strong> desde
-        la confirmación del pedido. Los fines de semana y festivos no cuentan como días hábiles.
+        la confirmación del pedido. Los fines de semana y festivos no cuentan.
       </p>
 
       <h2 className="fs-4 fw-bold mt-4">Seguimiento del pedido</h2>

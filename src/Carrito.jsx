@@ -13,6 +13,11 @@ const formatearPrecio = (valor) => formatoEuro.format(Number(valor || 0));
 
 // ===== ENVÍO (debe coincidir con lo configurado en Shopify) =====
 const COSTE_ENVIO = 6.9;
+
+// ===== VENTAS =====
+// false = la web enseña los productos pero NO deja pagar (tienda en preparación).
+// Cuando esté todo listo (cuenta bancaria, verificación...), cámbialo a true.
+const VENTAS_ACTIVAS = false;
 // Envío gratis desactivado de momento. Para volver a activarlo, pon el importe (p. ej. 50)
 // y crea también la tarifa gratuita en Shopify
 const ENVIO_GRATIS_DESDE = null;
@@ -52,6 +57,7 @@ function Carrito() {
   const progresoEnvio = hayEnvioGratis ? Math.min(100, (cartTotal / ENVIO_GRATIS_DESDE) * 100) : 0;
 
   const handleCheckout = async () => {
+    if (!VENTAS_ACTIVAS) return;
     setPagando(true);
     setErrorPago('');
     try {
@@ -224,6 +230,12 @@ function Carrito() {
               IVA incluido. Envíos solo a la península.
             </p>
 
+            {!VENTAS_ACTIVAS && (
+              <div className="alert alert-warning small" role="status">
+                Estamos terminando de preparar la tienda. Muy pronto podrás hacer tu pedido online.
+              </div>
+            )}
+
             {errorPago && (
               <div className="alert alert-danger small" role="alert">
                 {errorPago}
@@ -235,15 +247,17 @@ function Carrito() {
               className="btn btn-success w-100 py-3 fw-bold rounded-pill shadow"
               style={{ backgroundColor: '#556b2f', border: 'none' }}
               onClick={handleCheckout}
-              disabled={pagando}
+              disabled={pagando || !VENTAS_ACTIVAS}
             >
               {pagando ? (
                 <>
                   <span className="spinner-border spinner-border-sm me-2" role="status"></span>
                   Preparando el pago...
                 </>
-              ) : (
+              ) : VENTAS_ACTIVAS ? (
                 'Confirmar y pagar'
+              ) : (
+                'Próximamente'
               )}
             </button>
 

@@ -16,7 +16,7 @@ const PASOS = [
   {
     titulo: 'Sale hacia tu casa',
     texto:
-      'Cuando lo entreguemos a TIPSA te enviaremos el número de seguimiento. Llega en 24-48 horas laborables.',
+      'Si pides de lunes a viernes antes de las 14:00, sale ese mismo día; si no, el siguiente día laborable. Te enviaremos el número de seguimiento y TIPSA lo entrega en 24-48 horas laborables.',
   },
   {
     titulo: 'Atento al timbre y al teléfono',

@@ -7,6 +7,7 @@ const COSTE_ENVIO = '6,90 €';
 // Envío gratis desactivado de momento. Para volver a activarlo, pon el importe (p. ej. '50 €')
 const ENVIO_GRATIS_DESDE = null;
 const PLAZO = '24-48 horas laborables';
+const HORA_SALIDA = '14:00'; // hora a la que salen los envíos cada día laborable
 
 // Con envío gratis hay 4 tarjetas en el resumen; sin él, 3
 const COLUMNA = ENVIO_GRATIS_DESDE ? 'col-6 col-md-3' : 'col-12 col-sm-4';
@@ -77,8 +78,14 @@ function PoliticaEnvios() {
 
       <h2 className="fs-4 fw-bold mt-4">Plazos de entrega</h2>
       <p>
-        Los pedidos se entregan con {TRANSPORTISTA} en un plazo de <strong>{PLAZO}</strong> desde
-        la confirmación del pedido. Los fines de semana y festivos no cuentan.
+        Enviamos los pedidos de <strong>lunes a viernes</strong>. Si haces tu pedido un día
+        laborable <strong>antes de las {HORA_SALIDA}</strong>, sale ese mismo día. Si lo haces
+        después de las {HORA_SALIDA}, en fin de semana o en festivo, sale el siguiente día laborable.
+      </p>
+      <p>
+        Desde que sale de nuestro almacén, {TRANSPORTISTA} lo entrega en <strong>{PLAZO}</strong>.
+        Los fines de semana y festivos no cuentan: por ejemplo, un pedido hecho el miércoles por la
+        tarde sale el jueves y puede llegar hasta el lunes.
       </p>
 
       <h2 className="fs-4 fw-bold mt-4">Seguimiento del pedido</h2>

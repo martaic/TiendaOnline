@@ -228,6 +228,8 @@ function Carrito() {
             </div>
             <p className="text-muted small mb-4">
               IVA incluido. Envíos solo a la península.
+              <br />
+              Pedidos de lunes a viernes antes de las 14:00: salen el mismo día.
             </p>
 
             {!VENTAS_ACTIVAS && (

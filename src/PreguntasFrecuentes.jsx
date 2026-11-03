@@ -1,5 +1,12 @@
 import { Link } from 'react-router-dom';
 import './styles/PreguntasFrecuentes.css';
+import {
+  TRANSPORTISTA,
+  COSTE_ENVIO_TEXTO,
+  DIAS_ENVIO,
+  DIA_CORTE,
+  PLAZO,
+} from './datosEnvio';
 
 // ================= PREGUNTAS FRECUENTES =================
 // Para añadir, quitar o cambiar una pregunta, toca solo esta lista.
@@ -39,9 +46,10 @@ const PREGUNTAS = [
     pregunta: '¿Cuánto cuesta el envío y cuánto tarda?',
     respuesta: (
       <>
-        El envío cuesta <strong>6,90 €</strong> (IVA incluido). Los pedidos hechos de lunes a viernes{' '}
-        <strong>antes de las 14:00</strong> salen ese mismo día; el resto, el siguiente día laborable.
-        Desde que sale, TIPSA lo entrega en <strong>24-48 horas laborables</strong> y te enviaremos el
+        El envío cuesta <strong>{COSTE_ENVIO_TEXTO}</strong> (IVA incluido). Enviamos los{' '}
+        <strong>{DIAS_ENVIO}</strong>; los pedidos hechos a partir del {DIA_CORTE} se envían la
+        semana siguiente. Desde que sale, {TRANSPORTISTA} lo entrega en{' '}
+        <strong>{PLAZO}</strong> (días laborables), normalmente por la mañana, y te enviaremos el
         número de seguimiento por email. Más detalles en nuestra{' '}
         <Link to="/politica-envios">política de envíos</Link>.
       </>

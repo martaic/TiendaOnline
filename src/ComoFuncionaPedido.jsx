@@ -1,4 +1,5 @@
 import './styles/ComoFuncionaPedido.css';
+import { TRANSPORTISTA, DIAS_ENVIO, DIA_CORTE, PLAZO } from './datosEnvio';
 
 // ================= ¿QUÉ PASA DESPUÉS DE PAGAR? =================
 // Pasos que ve el cliente en el carrito (plegados: se abren al pulsar).
@@ -16,12 +17,12 @@ const PASOS = [
   {
     titulo: 'Sale hacia tu casa',
     texto:
-      'Si pides de lunes a viernes antes de las 14:00, sale ese mismo día; si no, el siguiente día laborable. Te enviaremos el número de seguimiento y TIPSA lo entrega en 24-48 horas laborables.',
+      `Enviamos los ${DIAS_ENVIO}; los pedidos hechos a partir del ${DIA_CORTE} salen la semana siguiente. Te enviaremos el número de seguimiento y ${TRANSPORTISTA} lo entrega en ${PLAZO} (días laborables).`,
   },
   {
     titulo: 'Atento al timbre y al teléfono',
     texto:
-      'Si no estás en casa, la mensajería se pondrá en contacto contigo para acordar una nueva entrega.',
+      'El reparto suele ser por la mañana. Si no estás en casa, la mensajería se pondrá en contacto contigo para acordar una nueva entrega.',
   },
   {
     titulo: '¿Algún problema?',

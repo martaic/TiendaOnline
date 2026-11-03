@@ -3,6 +3,7 @@ import { useCart } from './context/CartContext';
 import { Link } from 'react-router-dom';
 import { createShopifyCheckout } from './services/shopifyCheckout';
 import ComoFuncionaPedido from './ComoFuncionaPedido';
+import { TRANSPORTISTA, COSTE_ENVIO, DIAS_ENVIO, DIA_CORTE, PLAZO } from './datosEnvio';
 
 // Formatea precios al estilo español: 3,50 €
 const formatoEuro = new Intl.NumberFormat('es-ES', {
@@ -12,7 +13,7 @@ const formatoEuro = new Intl.NumberFormat('es-ES', {
 const formatearPrecio = (valor) => formatoEuro.format(Number(valor || 0));
 
 // ===== ENVÍO (debe coincidir con lo configurado en Shopify) =====
-const COSTE_ENVIO = 6.9;
+// El precio y los plazos del envío se cambian en src/datosEnvio.js
 
 // ===== VENTAS =====
 // false = la web enseña los productos pero NO deja pagar (tienda en preparación).
@@ -209,7 +210,7 @@ function Carrito() {
             </div>
             <div className="d-flex justify-content-between mb-4">
               <span>
-                Envío <span className="text-muted small">(TIPSA, 24-48 h laborables)</span>
+                Envío <span className="text-muted small">({TRANSPORTISTA}, {PLAZO})</span>
               </span>
               {envioGratis ? (
                 <span className="text-success fw-bold">Gratis</span>
@@ -229,7 +230,8 @@ function Carrito() {
             <p className="text-muted small mb-4">
               IVA incluido. Envíos solo a la península.
               <br />
-              Pedidos de lunes a viernes antes de las 14:00: salen el mismo día.
+              Enviamos los {DIAS_ENVIO}. Los pedidos hechos a partir del {DIA_CORTE} salen la
+              semana siguiente.
             </p>
 
             {!VENTAS_ACTIVAS && (

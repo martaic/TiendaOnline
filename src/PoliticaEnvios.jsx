@@ -1,13 +1,17 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import {
+  TRANSPORTISTA,
+  COSTE_ENVIO_TEXTO as COSTE_ENVIO,
+  DIAS_ENVIO,
+  HORA_RECOGIDA,
+  DIA_CORTE,
+  PLAZO,
+} from './datosEnvio';
 
-// ===== DATOS DE ENVÍO (deben coincidir con lo configurado en Shopify) =====
-const TRANSPORTISTA = 'TIPSA';
-const COSTE_ENVIO = '6,90 €';
+// Los datos de envío (precio, días, hora y plazo) se cambian en src/datosEnvio.js
 // Envío gratis desactivado de momento. Para volver a activarlo, pon el importe (p. ej. '50 €')
 const ENVIO_GRATIS_DESDE = null;
-const PLAZO = '24-48 horas laborables';
-const HORA_SALIDA = '14:00'; // hora a la que salen los envíos cada día laborable
 
 // Con envío gratis hay 4 tarjetas en el resumen; sin él, 3
 const COLUMNA = ENVIO_GRATIS_DESDE ? 'col-6 col-md-3' : 'col-12 col-sm-4';
@@ -78,14 +82,18 @@ function PoliticaEnvios() {
 
       <h2 className="fs-4 fw-bold mt-4">Plazos de entrega</h2>
       <p>
-        Enviamos los pedidos de <strong>lunes a viernes</strong>. Si haces tu pedido un día
-        laborable <strong>antes de las {HORA_SALIDA}</strong>, sale ese mismo día. Si lo haces
-        después de las {HORA_SALIDA}, en fin de semana o en festivo, sale el siguiente día laborable.
+        Preparamos y enviamos los pedidos los <strong>{DIAS_ENVIO}</strong>. {TRANSPORTISTA} los
+        recoge en nuestro almacén a las {HORA_RECOGIDA} y los pone en reparto a primera hora del día
+        siguiente.
       </p>
       <p>
-        Desde que sale de nuestro almacén, {TRANSPORTISTA} lo entrega en <strong>{PLAZO}</strong>.
-        Los fines de semana y festivos no cuentan: por ejemplo, un pedido hecho el miércoles por la
-        tarde sale el jueves y puede llegar hasta el lunes.
+        Los pedidos hechos <strong>a partir del {DIA_CORTE}</strong> se envían la{' '}
+        <strong>semana siguiente</strong>.
+      </p>
+      <p>
+        Desde que sale de nuestro almacén, {TRANSPORTISTA} lo entrega en <strong>{PLAZO}</strong>{' '}
+        (días laborables), normalmente <strong>por la mañana</strong>. Por ejemplo, un pedido hecho
+        el jueves sale el lunes y suele llegar el martes por la mañana.
       </p>
 
       <h2 className="fs-4 fw-bold mt-4">Seguimiento del pedido</h2>

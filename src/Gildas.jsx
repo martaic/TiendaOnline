@@ -179,20 +179,22 @@ function TarjetaGilda({ item, onVerInfo, onAdd }) {
           <h2 className="fw-bold fs-4">{item.nombre}</h2>
 
 
-          {/* Enlace discreto: ingredientes y alérgenos (o qué lleva el mix) en la ficha */}
-          <button
-            type="button"
-            className={`btn btn-link small mb-3 p-0 ${mix ? 'text-success' : 'text-muted text-decoration-none'}`}
-            onClick={() => onVerInfo(item)}
-          >
-            {mix ? (
-              'Ver qué gildas lleva'
-            ) : (
-              <>
-                <i className="bi bi-info-circle me-1" aria-hidden="true"></i>Ingredientes
-              </>
-            )}
-          </button>
+          {/* El mix siempre enseña qué lleva; el resto, solo si tiene ingredientes en Shopify */}
+          {(mix || item.descripcion) && (
+            <button
+              type="button"
+              className={`btn btn-link small mb-3 p-0 ${mix ? 'text-success' : 'text-muted text-decoration-none'}`}
+              onClick={() => onVerInfo(item)}
+            >
+              {mix ? (
+                'Ver qué gildas lleva'
+              ) : (
+                <>
+                  <i className="bi bi-info-circle me-1" aria-hidden="true"></i>Ingredientes
+                </>
+              )}
+            </button>
+          )}
 
           {tieneVariasOpciones && (
             <div className="mb-3">

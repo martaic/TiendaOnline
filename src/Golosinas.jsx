@@ -100,14 +100,16 @@ function TarjetaFrutoSeco({ item, onVerInfo, onAdd }) {
           <h2 className="card-title fw-bold fs-5">{item.nombre}</h2>
 
 
-          {/* Enlace discreto: los ingredientes y alérgenos se ven en la ficha */}
-          <button
-            type="button"
-            className="btn btn-link text-muted small mb-3 p-0 text-decoration-none"
-            onClick={() => onVerInfo(item)}
-          >
-            <i className="bi bi-info-circle me-1" aria-hidden="true"></i>Ingredientes
-          </button>
+          {/* Enlace a ingredientes: solo si el producto tiene descripción en Shopify */}
+          {item.descripcion && (
+            <button
+              type="button"
+              className="btn btn-link text-muted small mb-3 p-0 text-decoration-none"
+              onClick={() => onVerInfo(item)}
+            >
+              <i className="bi bi-info-circle me-1" aria-hidden="true"></i>Ingredientes
+            </button>
+          )}
 
           {tieneVariasOpciones && (
             <div className="mb-3">

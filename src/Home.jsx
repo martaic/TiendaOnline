@@ -23,6 +23,7 @@ const CATEGORIAS = [
   { nombre: 'Fritos', ruta: '/fritos', icono: '/iconos/fritos.png' },
   { nombre: 'Envases', ruta: '/envases', icono: '/iconos/envases.png' },
   { nombre: 'Caramelos', ruta: '/caramelos', icono: '/iconos/caramelos.png' },
+  { nombre: 'Miel', ruta: '/miel', icono: '/iconos/miel.png' },
 ];
 
 // Tarjeta de producto reutilizable para Destacados y Novedades

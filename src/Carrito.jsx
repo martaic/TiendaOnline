@@ -18,7 +18,7 @@ const formatearPrecio = (valor) => formatoEuro.format(Number(valor || 0));
 // ===== VENTAS =====
 // false = la web enseña los productos pero NO deja pagar (tienda en preparación).
 // Cuando esté todo listo (cuenta bancaria, verificación...), cámbialo a true.
-const VENTAS_ACTIVAS = false;
+const VENTAS_ACTIVAS = true;
 // Envío gratis desactivado de momento. Para volver a activarlo, pon el importe (p. ej. 50)
 // y crea también la tarifa gratuita en Shopify
 const ENVIO_GRATIS_DESDE = null;

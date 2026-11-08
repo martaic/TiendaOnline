@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import './styles/Home.css';
 import { Link } from 'react-router-dom';
 import { useCart } from './context/CartContext';
@@ -103,6 +103,80 @@ function TarjetaProducto({ item, variante = 'destacado', onAdd }) {
   );
 }
 
+// Barra de categorías: se desliza con el dedo o el ratón, y con flechas cuando no caben todas
+function BarraCategorias() {
+  const listaRef = useRef(null);
+  const [flechas, setFlechas] = useState({ izquierda: false, derecha: false });
+
+  // Comprueba si hay más pestañas escondidas a cada lado
+  const actualizarFlechas = useCallback(() => {
+    const lista = listaRef.current;
+    if (!lista) return;
+    const { scrollLeft, scrollWidth, clientWidth } = lista;
+    setFlechas({
+      izquierda: scrollLeft > 4,
+      derecha: scrollLeft + clientWidth < scrollWidth - 4,
+    });
+  }, []);
+
+  useEffect(() => {
+    actualizarFlechas();
+    window.addEventListener('resize', actualizarFlechas);
+    return () => window.removeEventListener('resize', actualizarFlechas);
+  }, [actualizarFlechas]);
+
+  const desplazar = (direccion) => {
+    const lista = listaRef.current;
+    if (!lista) return;
+    lista.scrollBy({ left: direccion * lista.clientWidth * 0.7, behavior: 'smooth' });
+  };
+
+  return (
+    <nav className="categorias" aria-label="Categorías">
+      <div className="categorias-contenedor">
+        {flechas.izquierda && (
+          <button
+            type="button"
+            className="categorias-flecha categorias-flecha-izq"
+            onClick={() => desplazar(-1)}
+            aria-label="Ver categorías anteriores"
+          >
+            <i className="bi bi-chevron-left" aria-hidden="true"></i>
+          </button>
+        )}
+
+        <ul className="categorias-lista" ref={listaRef} onScroll={actualizarFlechas}>
+          {CATEGORIAS.map((cat) => (
+            <li key={cat.ruta}>
+              <Link className="categoria-pill" to={cat.ruta}>
+                <span className="categoria-icono" aria-hidden="true">
+                  {cat.icono.startsWith('/') ? (
+                    <img src={cat.icono} alt="" width="24" height="24" onLoad={actualizarFlechas} />
+                  ) : (
+                    cat.icono
+                  )}
+                </span>
+                {cat.nombre}
+              </Link>
+            </li>
+          ))}
+        </ul>
+
+        {flechas.derecha && (
+          <button
+            type="button"
+            className="categorias-flecha categorias-flecha-der"
+            onClick={() => desplazar(1)}
+            aria-label="Ver más categorías"
+          >
+            <i className="bi bi-chevron-right" aria-hidden="true"></i>
+          </button>
+        )}
+      </div>
+    </nav>
+  );
+}
+
 function Home() {
   const [destacados, setDestacados] = useState([]);
   const [novedades, setNovedades] = useState([]);
@@ -153,24 +227,7 @@ function Home() {
       </h1>
 
       {/* 1. Pestañas de categorías */}
-      <nav className="categorias" aria-label="Categorías">
-        <ul className="categorias-lista">
-          {CATEGORIAS.map((cat) => (
-            <li key={cat.ruta}>
-              <Link className="categoria-pill" to={cat.ruta}>
-                <span className="categoria-icono" aria-hidden="true">
-                  {cat.icono.startsWith('/') ? (
-                    <img src={cat.icono} alt="" width="28" height="28" />
-                  ) : (
-                    cat.icono
-                  )}
-                </span>
-                {cat.nombre}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
+      <BarraCategorias />
 
       {/* 2. Productos destacados (colección "destacados" de Shopify) */}
       {destacados.length > 0 && (

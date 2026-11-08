@@ -14,10 +14,11 @@
 
 .categorias-lista {
     display: flex;
-    gap: 0.75rem;
+    gap: 0.6rem;
     list-style: none;
     margin: 0;
-    padding: 1rem;
+    padding: 0.85rem 1rem;
+    scroll-behavior: smooth;
     overflow-x: auto;              /* en móvil se desliza con el dedo */
     scrollbar-width: none;         /* sin barra de scroll visible (Firefox) */
     -webkit-overflow-scrolling: touch;
@@ -34,9 +35,10 @@
 .categoria-pill {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
     white-space: nowrap;
-    padding: 0.55rem 1.2rem;
+    padding: 0.4rem 0.95rem;
+    font-size: 0.95rem;
     border-radius: 999px;
     border: 2px solid #556b2f;
     background-color: #f3f6ec;
@@ -65,15 +67,51 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
 }
 
 .categoria-icono img {
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
     object-fit: contain;
     transition: transform 0.2s ease;
+}
+
+/* Flechas para desplazarse cuando no caben todas las pestañas */
+.categorias-contenedor {
+    position: relative;
+}
+
+.categorias-flecha {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    z-index: 2;
+    width: 3rem;
+    border: none;
+    display: flex;
+    align-items: center;
+    color: #556b2f;
+    font-size: 1.4rem;
+    cursor: pointer;
+}
+.categorias-flecha-izq {
+    left: 0;
+    justify-content: flex-start;
+    padding-left: 0.4rem;
+    background: linear-gradient(to right, #ffffff 55%, rgba(255, 255, 255, 0));
+}
+.categorias-flecha-der {
+    right: 0;
+    justify-content: flex-end;
+    padding-right: 0.4rem;
+    background: linear-gradient(to left, #ffffff 55%, rgba(255, 255, 255, 0));
+}
+.categorias-flecha:hover i { transform: scale(1.2); }
+.categorias-flecha:focus-visible {
+    outline: 3px solid #556b2f;
+    outline-offset: -3px;
 }
 
 /* El dibujo se mueve un poco al pasar el ratón */

@@ -10,18 +10,6 @@ const formatoEuro = new Intl.NumberFormat('es-ES', {
 });
 const formatearPrecio = (valor) => formatoEuro.format(Number(valor || 0));
 
-// Filtros disponibles (clave interna → texto que ve el cliente)
-const FILTROS = [
-  { clave: 'todos', texto: 'Todos' },
-  { clave: 'frutos-secos', texto: 'Frutos secos' },
-  { clave: 'frutas-deshidratadas', texto: 'Frutas deshidratadas' },
-];
-
-const ETIQUETAS = {
-  'frutos-secos': { texto: 'Fruto seco', clase: 'bg-warning text-dark' },
-  'frutas-deshidratadas': { texto: 'Fruta deshidratada', clase: 'bg-success' },
-};
-
 // ================= TARJETA DE PRODUCTO =================
 function TarjetaFrutoSeco({ item, onVerInfo, onAdd }) {
   const variantes = item.variantes || [];
@@ -41,7 +29,6 @@ function TarjetaFrutoSeco({ item, onVerInfo, onAdd }) {
   // "Default Title" es lo que pone Shopify cuando el producto no tiene opciones.
   const cantidad =
     !tieneVariasOpciones && varianteActual.title !== 'Default Title' ? varianteActual.title : null;
-  const etiqueta = ETIQUETAS[item.subcategoria];
 
   const handleAdd = () => {
     onAdd({
@@ -60,15 +47,6 @@ function TarjetaFrutoSeco({ item, onVerInfo, onAdd }) {
   return (
     <div className="col-12 col-sm-6 col-md-4 col-lg-3">
       <div className="card h-100 shadow-sm border-0 product-card">
-        {etiqueta && (
-          <span
-            className={`badge position-absolute m-2 ${etiqueta.clase}`}
-            style={{ top: 0, right: 0, zIndex: 1 }}
-          >
-            {etiqueta.texto}
-          </span>
-        )}
-
         {/* La foto abre la ficha con ingredientes y alérgenos */}
         <button
           type="button"
@@ -241,7 +219,6 @@ function ModalProducto({ producto, onClose }) {
 // ================= PÁGINA =================
 function FrutosSecos() {
   const [productos, setProductos] = useState([]);
-  const [filtro, setFiltro] = useState('todos');
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(false);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
@@ -251,44 +228,26 @@ function FrutosSecos() {
 
   // Título de la pestaña del navegador (también ayuda en Google)
   useEffect(() => {
-    document.title = 'Frutos secos y frutas deshidratadas | El Puesto de la Dieta';
+    document.title = 'Frutos secos | El Puesto de la Dieta';
   }, []);
 
   useEffect(() => {
     let cancelado = false;
 
-    // Pedimos las dos colecciones a la vez (más rápido que una detrás de otra)
-    Promise.allSettled([
-      getCollectionProducts('frutos-secos'),
-      getCollectionProducts('frutas-deshidratadas'),
-    ]).then(([resFrutos, resFrutas]) => {
-      if (cancelado) return;
-
-      if (resFrutos.status === 'rejected' && resFrutas.status === 'rejected') {
-        console.error('Error cargando frutos secos:', resFrutos.reason, resFrutas.reason);
-        setError(true);
-        setCargando(false);
-        return;
-      }
-
-      const frutosSecos = resFrutos.status === 'fulfilled' ? resFrutos.value : [];
-      const frutasDeshidratadas = resFrutas.status === 'fulfilled' ? resFrutas.value : [];
-
-      // Si un producto está en las dos colecciones, solo lo mostramos una vez
-      const vistos = new Set();
-      const productosFinales = [
-        ...frutosSecos.map((item) => ({ ...item, subcategoria: 'frutos-secos' })),
-        ...frutasDeshidratadas.map((item) => ({ ...item, subcategoria: 'frutas-deshidratadas' })),
-      ].filter((item) => {
-        if (vistos.has(item.id)) return false;
-        vistos.add(item.id);
-        return true;
+    // La fruta deshidratada tiene ahora su propia sección (FrutaDeshidratada.jsx)
+    getCollectionProducts('frutos-secos')
+      .then((productosShopify) => {
+        if (cancelado) return;
+        setProductos(productosShopify);
+        setError(false);
+      })
+      .catch((err) => {
+        console.error('Error cargando frutos secos:', err);
+        if (!cancelado) setError(true);
+      })
+      .finally(() => {
+        if (!cancelado) setCargando(false);
       });
-
-      setProductos(productosFinales);
-      setError(false);
-      setCargando(false);
-    });
 
     // Si el usuario sale de la página antes de que responda Shopify, no actualizamos nada
     return () => {
@@ -303,9 +262,6 @@ function FrutosSecos() {
     setError(false);
     setIntento((n) => n + 1);
   };
-
-  const productosFiltrados =
-    filtro === 'todos' ? productos : productos.filter((item) => item.subcategoria === filtro);
 
   if (cargando) {
     return (
@@ -322,27 +278,12 @@ function FrutosSecos() {
     <div className="container py-5">
       <div className="text-center mb-5">
         <h1 className="fw-bold" style={{ color: '#8d6e63', fontSize: 'clamp(2rem, 5vw, 3.5rem)' }}>
-          Frutos Secos y Frutas Deshidratadas
+          Frutos Secos
         </h1>
         <p className="lead text-muted">
           El clásico que nunca falla. Abre, comparte y que empiece el crujido.
         </p>
 
-        {!error && productos.length > 0 && (
-          <div className="btn-group mt-3 shadow-sm" role="group" aria-label="Filtrar productos">
-            {FILTROS.map(({ clave, texto }) => (
-              <button
-                key={clave}
-                type="button"
-                onClick={() => setFiltro(clave)}
-                aria-pressed={filtro === clave}
-                className={`btn ${filtro === clave ? 'btn-danger' : 'btn-outline-danger'}`}
-              >
-                {texto}
-              </button>
-            ))}
-          </div>
-        )}
       </div>
 
       {error ? (
@@ -354,15 +295,13 @@ function FrutosSecos() {
             Reintentar
           </button>
         </div>
-      ) : productosFiltrados.length === 0 ? (
+      ) : productos.length === 0 ? (
         <p className="text-center text-muted py-5">
-          {productos.length === 0
-            ? 'Ahora mismo no hay productos disponibles. ¡Vuelve pronto!'
-            : 'No hay productos en esta categoría por ahora.'}
+          Ahora mismo no hay frutos secos disponibles. ¡Vuelve pronto!
         </p>
       ) : (
         <div className="row g-4">
-          {productosFiltrados.map((item) => (
+          {productos.map((item) => (
             <TarjetaFrutoSeco
               key={item.id}
               item={item}

@@ -20,6 +20,7 @@ const CATEGORIAS = [
   { nombre: 'Especias', ruta: '/especias', icono: '/iconos/especias.png' },
   { nombre: 'Dulces', ruta: '/dulces', icono: '/iconos/dulces.png' },
   { nombre: 'Frutos secos', ruta: '/golosinas', icono: '🥜' },
+  { nombre: 'Fruta deshidratada', ruta: '/fruta-deshidratada', icono: '/iconos/fruta-deshidratada.png' },
   { nombre: 'Fritos', ruta: '/fritos', icono: '/iconos/fritos.png' },
   { nombre: 'Envases', ruta: '/envases', icono: '/iconos/envases.png' },
   { nombre: 'Caramelos', ruta: '/caramelos', icono: '/iconos/caramelos.png' },

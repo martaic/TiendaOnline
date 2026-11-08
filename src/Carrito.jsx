@@ -219,6 +219,16 @@ function Carrito() {
               )}
             </div>
 
+            {/* La recogida en mercado se elige en la página de pago de Shopify (una tarifa por mercado) */}
+            <p className="small mb-4 p-2 rounded" style={{ backgroundColor: '#f3f6ec' }}>
+              <i className="bi bi-shop me-1" aria-hidden="true"></i>
+              ¿Prefieres recogerlo <strong>gratis en un mercado</strong>? Elígelo al pagar, en{' '}
+              <strong>Forma de envío</strong>.{' '}
+              <Link to="/politica-envios" className="text-success">
+                Ver mercados
+              </Link>
+            </p>
+
             <hr />
 
             <div className="d-flex justify-content-between mb-1">

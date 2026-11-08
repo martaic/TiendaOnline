@@ -7,6 +7,8 @@ import {
   HORA_RECOGIDA,
   DIA_CORTE,
   PLAZO,
+  MERCADOS,
+  textoMercado,
 } from './datosEnvio';
 
 // Los datos de envío (precio, días, hora y plazo) se cambian en src/datosEnvio.js
@@ -94,6 +96,22 @@ function PoliticaEnvios() {
         Desde que sale de nuestro almacén, {TRANSPORTISTA} lo entrega en <strong>{PLAZO}</strong>{' '}
         (días laborables), normalmente <strong>por la mañana</strong>. Por ejemplo, un pedido hecho
         el jueves sale el lunes y suele llegar el martes por la mañana.
+      </p>
+
+      <h2 className="fs-4 fw-bold mt-4">Recogida en mercado (gratis)</h2>
+      <p>
+        Si lo prefieres, puedes recoger tu pedido <strong>sin gastos de envío</strong> en uno de los
+        mercados donde estamos cada semana:
+      </p>
+      <ul>
+        {MERCADOS.map((m) => (
+          <li key={`${m.dia}-${m.lugar}`}>{textoMercado(m)}</li>
+        ))}
+      </ul>
+      <p>
+        Al pagar, en <strong>Forma de envío</strong>, elige la opción «Recogida» del mercado que te
+        venga mejor en lugar del envío con {TRANSPORTISTA}. Te confirmaremos por email o teléfono
+        cuándo puedes pasar a recogerlo.
       </p>
 
       <h2 className="fs-4 fw-bold mt-4">Seguimiento del pedido</h2>

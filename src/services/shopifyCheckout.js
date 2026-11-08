@@ -32,8 +32,11 @@ const CART_CREATE_MUTATION = `
 /**
  * Crea un carrito en Shopify con los productos de nuestra web
  * y devuelve la URL de la página de pago de Shopify.
+ *
+ * entrega (opcional): { forma: 'Envío a domicilio' | 'Recogida en mercado', mercado: 'Martes · Plasencia (...)' }
+ * Se guarda en el pedido para que los dueños vean cómo y dónde lo quiere el cliente.
  */
-export async function createShopifyCheckout(cartItems) {
+export async function createShopifyCheckout(cartItems, entrega = null) {
   // Solo aceptamos IDs de VARIANTE reales de Shopify.
   // (Antes se intentaba "arreglar" un ID de producto cambiando el texto, pero eso no funciona:
   //  el ID de un producto y el de su variante son números distintos.)
@@ -63,6 +66,17 @@ export async function createShopifyCheckout(cartItems) {
     return line;
   });
 
+  // Forma de entrega elegida en el carrito: aparece en el pedido de Shopify ("Detalles adicionales")
+  const attributes = [];
+  let note;
+  if (entrega?.forma) {
+    attributes.push({ key: 'Forma de entrega', value: entrega.forma });
+    if (entrega.mercado) {
+      attributes.push({ key: 'Mercado de recogida', value: entrega.mercado });
+      note = `Recogida en mercado: ${entrega.mercado}`;
+    }
+  }
+
   const response = await fetch(endpoint, {
     method: 'POST',
     headers: {
@@ -74,6 +88,8 @@ export async function createShopifyCheckout(cartItems) {
       variables: {
         input: {
           lines,
+          attributes,
+          ...(note ? { note } : {}),
           buyerIdentity: { countryCode: 'ES' }, // precios y envíos para España
         },
       },

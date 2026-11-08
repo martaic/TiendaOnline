@@ -6,6 +6,8 @@ import {
   DIAS_ENVIO,
   DIA_CORTE,
   PLAZO,
+  MERCADOS,
+  textoMercado,
 } from './datosEnvio';
 
 // ================= PREGUNTAS FRECUENTES =================
@@ -52,6 +54,21 @@ const PREGUNTAS = [
         <strong>{PLAZO}</strong> (días laborables), normalmente por la mañana, y te enviaremos el
         número de seguimiento por email. Más detalles en nuestra{' '}
         <Link to="/politica-envios">política de envíos</Link>.
+      </>
+    ),
+  },
+  {
+    pregunta: '¿Puedo recoger mi pedido en un mercado?',
+    respuesta: (
+      <>
+        Sí, y <strong>sin gastos de envío</strong>. Al pagar, en <strong>Forma de envío</strong>,
+        elige la opción «Recogida» del mercado que te venga mejor:
+        <ul className="mt-2 mb-2">
+          {MERCADOS.map((m) => (
+            <li key={`${m.dia}-${m.lugar}`}>{textoMercado(m)}</li>
+          ))}
+        </ul>
+        Te confirmaremos por email o teléfono cuándo puedes recogerlo.
       </>
     ),
   },

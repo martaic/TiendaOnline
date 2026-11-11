@@ -13,6 +13,9 @@ const formatearPrecio = (valor) => formatoEuro.format(Number(valor || 0));
 // El mix lo preparan en el puesto con todas las gildas; el cliente solo elige el tamaño
 const esMix = (producto) => producto.nombre.toLowerCase().includes('mix');
 
+// Cuántas variedades elige el cliente para su mix (para todos los tamaños)
+const GILDAS_POR_MIX = 6;
+
 // ================= VENTANA EMERGENTE BASE =================
 function Modal({ titulo, colorCabecera = 'bg-success', grande = false, onClose, children, pie }) {
   // Cerrar con Escape y bloquear el scroll del fondo mientras está abierta
@@ -92,13 +95,13 @@ function ModalIngredientes({ producto, onClose }) {
       {(producto.descripcion || esMix(producto)) && (
         <>
           <h3 className="fw-bold text-success fs-6 mt-3">
-            {esMix(producto) ? 'Gildas que lleva el mix:' : 'Ingredientes y alérgenos:'}
+            {esMix(producto) ? 'Tu mix de gildas:' : 'Ingredientes y alérgenos:'}
           </h3>
           <p
             className="text-muted bg-light p-3 rounded"
             style={{ whiteSpace: 'pre-line', lineHeight: '1.6' }}
           >
-            {producto.descripcion || 'Preparamos el mix con una selección de todas nuestras gildas.'}
+            {producto.descripcion || `Elige ${GILDAS_POR_MIX} de nuestras gildas en la tarjeta del mix y te lo preparamos con ellas, en el tamaño que prefieras.`}
           </p>
         </>
       )}
@@ -107,7 +110,7 @@ function ModalIngredientes({ producto, onClose }) {
 }
 
 // ================= TARJETA DE PRODUCTO =================
-function TarjetaGilda({ item, onVerInfo, onAdd }) {
+function TarjetaGilda({ item, onVerInfo, onAdd, opcionesMix = [] }) {
   const variantes = item.variantes || [];
   const mix = esMix(item);
 
@@ -115,6 +118,8 @@ function TarjetaGilda({ item, onVerInfo, onAdd }) {
     () => (variantes.find((v) => v.availableForSale !== false) || variantes[0])?.id
   );
   const [anadido, setAnadido] = useState(false);
+  // Gildas elegidas para el mix (solo se usa en la tarjeta del mix)
+  const [elegidas, setElegidas] = useState([]);
 
   const varianteActual = variantes.find((v) => v.id === varianteId) || variantes[0];
   if (!varianteActual) return null;
@@ -126,7 +131,37 @@ function TarjetaGilda({ item, onVerInfo, onAdd }) {
   const cantidad =
     !tieneVariasOpciones && varianteActual.title !== 'Default Title' ? varianteActual.title : null;
 
+  // Si hay menos gildas que GILDAS_POR_MIX en la tienda, se piden todas las que haya
+  const necesarias = Math.min(GILDAS_POR_MIX, opcionesMix.length);
+  const faltan = mix ? necesarias - elegidas.length : 0;
+
+  const alternarGilda = (nombre) => {
+    setElegidas((actuales) => {
+      if (actuales.includes(nombre)) return actuales.filter((n) => n !== nombre);
+      if (actuales.length >= necesarias) return actuales; // ya hay 6: no deja añadir más
+      return [...actuales, nombre];
+    });
+  };
+
   const handleAdd = () => {
+    if (mix) {
+      if (faltan > 0) return;
+      const composicion = [...elegidas].sort((a, b) => a.localeCompare(b, 'es')).join(', ');
+      onAdd({
+        // El id incluye las gildas elegidas: dos mixes distintos son dos líneas distintas en el carrito
+        id: `${varianteActual.id}|${composicion}`,
+        variantId: varianteActual.id, // lo que Shopify necesita para cobrar
+        title: tieneVariasOpciones ? `${item.nombre} (${varianteActual.title})` : item.nombre,
+        price: Number(varianteActual.price?.amount || 0),
+        image: item.imagen_url,
+        descripcion: composicion, // sale en el carrito y en el pedido de Shopify ("Composición")
+      });
+      setElegidas([]);
+      setAnadido(true);
+      setTimeout(() => setAnadido(false), 1500);
+      return;
+    }
+
     onAdd({
       id: varianteActual.id,
       title:
@@ -153,7 +188,7 @@ function TarjetaGilda({ item, onVerInfo, onAdd }) {
           type="button"
           className="p-0 border-0 bg-transparent"
           onClick={() => onVerInfo(item)}
-          aria-label={mix ? `Ver qué gildas lleva el ${item.nombre}` : `Ver ingredientes de ${item.nombre}`}
+          aria-label={mix ? `Cómo funciona el ${item.nombre}` : `Ver ingredientes de ${item.nombre}`}
         >
           {item.imagen_url ? (
             <img
@@ -187,7 +222,7 @@ function TarjetaGilda({ item, onVerInfo, onAdd }) {
               onClick={() => onVerInfo(item)}
             >
               {mix ? (
-                'Ver qué gildas lleva'
+                'Cómo funciona el mix'
               ) : (
                 <>
                   <i className="bi bi-info-circle me-1" aria-hidden="true"></i>Ingredientes
@@ -217,6 +252,39 @@ function TarjetaGilda({ item, onVerInfo, onAdd }) {
             </div>
           )}
 
+          {/* Selector de gildas del mix */}
+          {mix && necesarias > 0 && (
+            <fieldset className="mb-3 text-start">
+              <legend className="form-label small fw-bold text-center w-100 mb-2">
+                Elige {necesarias} gildas para tu mix{' '}
+                <span className={faltan === 0 ? 'text-success' : 'text-muted'}>
+                  ({elegidas.length}/{necesarias})
+                </span>
+              </legend>
+              <div className="d-flex flex-wrap gap-2 justify-content-center">
+                {opcionesMix.map((nombre) => {
+                  const marcada = elegidas.includes(nombre);
+                  const bloqueada = !marcada && elegidas.length >= necesarias;
+                  return (
+                    <button
+                      key={nombre}
+                      type="button"
+                      className={`btn btn-sm rounded-pill ${
+                        marcada ? 'btn-success' : 'btn-outline-success'
+                      }`}
+                      onClick={() => alternarGilda(nombre)}
+                      disabled={bloqueada}
+                      aria-pressed={marcada}
+                    >
+                      {marcada && <i className="bi bi-check-lg me-1" aria-hidden="true"></i>}
+                      {nombre}
+                    </button>
+                  );
+                })}
+              </div>
+            </fieldset>
+          )}
+
           <p className="fs-4 fw-bold text-success mt-auto mb-3">
             {formatearPrecio(varianteActual.price?.amount)}
             {cantidad && <span className="fs-6 fw-normal text-muted"> · {cantidad}</span>}
@@ -229,9 +297,15 @@ function TarjetaGilda({ item, onVerInfo, onAdd }) {
             type="button"
             className="btn btn-success w-100"
             onClick={handleAdd}
-            disabled={agotado}
+            disabled={agotado || faltan > 0}
           >
-            {agotado ? 'Agotado' : anadido ? '✓ Añadido' : 'Añadir al carrito'}
+            {agotado
+              ? 'Agotado'
+              : anadido
+                ? '✓ Añadido'
+                : faltan > 0
+                  ? `Elige ${faltan} ${faltan === 1 ? 'gilda más' : 'gildas más'}`
+                  : 'Añadir al carrito'}
           </button>
         </div>
       </div>
@@ -276,6 +350,12 @@ function Gildas() {
   }, [intento]);
 
   const cerrarIngredientes = useCallback(() => setProductoSeleccionado(null), []);
+
+  // Gildas que se pueden elegir para el mix: todas las de la tienda menos el propio mix
+  // y las que estén agotadas
+  const opcionesMix = gildas
+    .filter((g) => !esMix(g) && (g.variantes || []).some((v) => v.availableForSale !== false))
+    .map((g) => g.nombre);
 
   const reintentar = () => {
     setCargando(true);
@@ -327,6 +407,7 @@ function Gildas() {
               item={gilda}
               onVerInfo={setProductoSeleccionado}
               onAdd={addToCart}
+              opcionesMix={opcionesMix}
             />
           ))}
         </div>

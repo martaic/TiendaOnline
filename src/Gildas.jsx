@@ -11,7 +11,11 @@ const formatoEuro = new Intl.NumberFormat('es-ES', {
 const formatearPrecio = (valor) => formatoEuro.format(Number(valor || 0));
 
 // El mix lo preparan en el puesto con todas las gildas; el cliente solo elige el tamaño
+// Hay dos mixes, y los dos llevan "mix" en el nombre:
+// - Mix normal: lo preparan en el puesto con una selección de gildas (el cliente solo elige el tamaño)
+// - Mix "a tu gusto": el cliente elige sus gildas (el nombre tiene que llevar "a tu gusto")
 const esMix = (producto) => producto.nombre.toLowerCase().includes('mix');
+const esMixAGusto = (producto) => esMix(producto) && producto.nombre.toLowerCase().includes('a tu gusto');
 
 // Cuántas variedades elige el cliente para su mix (para todos los tamaños)
 const GILDAS_POR_MIX = 6;
@@ -91,17 +95,24 @@ function ModalIngredientes({ producto, onClose }) {
           />
         )}
       </div>
-      {/* Si no hay descripción en Shopify, no se muestra el apartado (salvo en el mix) */}
+      {/* Si no hay descripción en Shopify, no se muestra el apartado (salvo en los mixes) */}
       {(producto.descripcion || esMix(producto)) && (
         <>
           <h3 className="fw-bold text-success fs-6 mt-3">
-            {esMix(producto) ? 'Tu mix de gildas:' : 'Ingredientes y alérgenos:'}
+            {esMixAGusto(producto)
+              ? 'Tu mix de gildas:'
+              : esMix(producto)
+                ? 'Gildas que lleva el mix:'
+                : 'Ingredientes y alérgenos:'}
           </h3>
           <p
             className="text-muted bg-light p-3 rounded"
             style={{ whiteSpace: 'pre-line', lineHeight: '1.6' }}
           >
-            {producto.descripcion || `Elige ${GILDAS_POR_MIX} de nuestras gildas en la tarjeta del mix y te lo preparamos con ellas, en el tamaño que prefieras.`}
+            {producto.descripcion ||
+              (esMixAGusto(producto)
+                ? `Elige ${GILDAS_POR_MIX} de nuestras gildas en la tarjeta del mix y te lo preparamos con ellas, en el tamaño que prefieras.`
+                : 'Preparamos el mix con una selección de todas nuestras gildas.')}
           </p>
         </>
       )}
@@ -113,6 +124,7 @@ function ModalIngredientes({ producto, onClose }) {
 function TarjetaGilda({ item, onVerInfo, onAdd, opcionesMix = [] }) {
   const variantes = item.variantes || [];
   const mix = esMix(item);
+  const aGusto = esMixAGusto(item); // solo este mix tiene selector de gildas
 
   const [varianteId, setVarianteId] = useState(
     () => (variantes.find((v) => v.availableForSale !== false) || variantes[0])?.id
@@ -133,7 +145,7 @@ function TarjetaGilda({ item, onVerInfo, onAdd, opcionesMix = [] }) {
 
   // Si hay menos gildas que GILDAS_POR_MIX en la tienda, se piden todas las que haya
   const necesarias = Math.min(GILDAS_POR_MIX, opcionesMix.length);
-  const faltan = mix ? necesarias - elegidas.length : 0;
+  const faltan = aGusto ? necesarias - elegidas.length : 0;
 
   const alternarGilda = (nombre) => {
     setElegidas((actuales) => {
@@ -144,7 +156,7 @@ function TarjetaGilda({ item, onVerInfo, onAdd, opcionesMix = [] }) {
   };
 
   const handleAdd = () => {
-    if (mix) {
+    if (aGusto) {
       if (faltan > 0) return;
       const composicion = [...elegidas].sort((a, b) => a.localeCompare(b, 'es')).join(', ');
       onAdd({
@@ -180,7 +192,7 @@ function TarjetaGilda({ item, onVerInfo, onAdd, opcionesMix = [] }) {
       <div className={`card h-100 shadow-sm product-card ${mix ? 'border-warning border-2' : 'border-0'}`}>
         {mix && (
           <span className="badge bg-warning text-dark position-absolute m-2" style={{ top: 0, right: 0, zIndex: 1 }}>
-            Mix de gildas
+            {aGusto ? 'Elige tus gildas' : 'Mix de gildas'}
           </span>
         )}
 
@@ -188,7 +200,7 @@ function TarjetaGilda({ item, onVerInfo, onAdd, opcionesMix = [] }) {
           type="button"
           className="p-0 border-0 bg-transparent"
           onClick={() => onVerInfo(item)}
-          aria-label={mix ? `Cómo funciona el ${item.nombre}` : `Ver ingredientes de ${item.nombre}`}
+          aria-label={aGusto ? `Cómo funciona el ${item.nombre}` : mix ? `Ver qué gildas lleva el ${item.nombre}` : `Ver ingredientes de ${item.nombre}`}
         >
           {item.imagen_url ? (
             <img
@@ -221,8 +233,10 @@ function TarjetaGilda({ item, onVerInfo, onAdd, opcionesMix = [] }) {
               className={`btn btn-link small mb-3 p-0 ${mix ? 'text-success' : 'text-muted text-decoration-none'}`}
               onClick={() => onVerInfo(item)}
             >
-              {mix ? (
+              {aGusto ? (
                 'Cómo funciona el mix'
+              ) : mix ? (
+                'Ver qué gildas lleva'
               ) : (
                 <>
                   <i className="bi bi-info-circle me-1" aria-hidden="true"></i>Ingredientes
@@ -253,7 +267,7 @@ function TarjetaGilda({ item, onVerInfo, onAdd, opcionesMix = [] }) {
           )}
 
           {/* Selector de gildas del mix */}
-          {mix && necesarias > 0 && (
+          {aGusto && necesarias > 0 && (
             <fieldset className="mb-3 text-start">
               <legend className="form-label small fw-bold text-center w-100 mb-2">
                 Elige {necesarias} gildas para tu mix{' '}

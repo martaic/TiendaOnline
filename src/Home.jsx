@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './styles/Home.css';
 import { Link } from 'react-router-dom';
 import { useCart } from './context/CartContext';
@@ -11,21 +11,6 @@ const formatoEuro = new Intl.NumberFormat('es-ES', {
   currency: 'EUR',
 });
 const formatearPrecio = (valor) => formatoEuro.format(Number(valor || 0));
-
-// Pestañas de categorías (para añadir o cambiar una, tócala solo aquí)
-// "icono" puede ser un dibujo de la carpeta public/iconos/ o un emoji
-const CATEGORIAS = [
-  { nombre: 'Encurtidos', ruta: '/aceitunas', icono: '/iconos/encurtidos.png' },
-  { nombre: 'Gildas', ruta: '/gildas', icono: '/iconos/gildas.png' },
-  { nombre: 'Especias', ruta: '/especias', icono: '/iconos/especias.png' },
-  { nombre: 'Dulces', ruta: '/dulces', icono: '/iconos/dulces.png' },
-  { nombre: 'Frutos secos', ruta: '/golosinas', icono: '🥜' },
-  { nombre: 'Fruta deshidratada', ruta: '/fruta-deshidratada', icono: '/iconos/fruta-deshidratada.png' },
-  { nombre: 'Fritos', ruta: '/fritos', icono: '/iconos/fritos.png' },
-  { nombre: 'Envases', ruta: '/envases', icono: '/iconos/envases.png' },
-  { nombre: 'Caramelos', ruta: '/caramelos', icono: '/iconos/caramelos.png' },
-  { nombre: 'Miel', ruta: '/miel', icono: '/iconos/miel.png' },
-];
 
 // ================= SECCIONES DE LA PORTADA =================
 // Para cambiar el orden, los títulos o la colección de Shopify, toca solo esta lista.
@@ -125,80 +110,6 @@ function TarjetaProducto({ item, variante = 'normal', puesto, onAdd }) {
   );
 }
 
-// Barra de categorías: se desliza con el dedo o el ratón, y con flechas cuando no caben todas
-function BarraCategorias() {
-  const listaRef = useRef(null);
-  const [flechas, setFlechas] = useState({ izquierda: false, derecha: false });
-
-  // Comprueba si hay más pestañas escondidas a cada lado
-  const actualizarFlechas = useCallback(() => {
-    const lista = listaRef.current;
-    if (!lista) return;
-    const { scrollLeft, scrollWidth, clientWidth } = lista;
-    setFlechas({
-      izquierda: scrollLeft > 4,
-      derecha: scrollLeft + clientWidth < scrollWidth - 4,
-    });
-  }, []);
-
-  useEffect(() => {
-    actualizarFlechas();
-    window.addEventListener('resize', actualizarFlechas);
-    return () => window.removeEventListener('resize', actualizarFlechas);
-  }, [actualizarFlechas]);
-
-  const desplazar = (direccion) => {
-    const lista = listaRef.current;
-    if (!lista) return;
-    lista.scrollBy({ left: direccion * lista.clientWidth * 0.7, behavior: 'smooth' });
-  };
-
-  return (
-    <nav className="categorias" aria-label="Categorías">
-      <div className="categorias-contenedor">
-        {flechas.izquierda && (
-          <button
-            type="button"
-            className="categorias-flecha categorias-flecha-izq"
-            onClick={() => desplazar(-1)}
-            aria-label="Ver categorías anteriores"
-          >
-            <i className="bi bi-chevron-left" aria-hidden="true"></i>
-          </button>
-        )}
-
-        <ul className="categorias-lista" ref={listaRef} onScroll={actualizarFlechas}>
-          {CATEGORIAS.map((cat) => (
-            <li key={cat.ruta}>
-              <Link className="categoria-pill" to={cat.ruta}>
-                <span className="categoria-icono" aria-hidden="true">
-                  {cat.icono.startsWith('/') ? (
-                    <img src={cat.icono} alt="" width="24" height="24" onLoad={actualizarFlechas} />
-                  ) : (
-                    cat.icono
-                  )}
-                </span>
-                {cat.nombre}
-              </Link>
-            </li>
-          ))}
-        </ul>
-
-        {flechas.derecha && (
-          <button
-            type="button"
-            className="categorias-flecha categorias-flecha-der"
-            onClick={() => desplazar(1)}
-            aria-label="Ver más categorías"
-          >
-            <i className="bi bi-chevron-right" aria-hidden="true"></i>
-          </button>
-        )}
-      </div>
-    </nav>
-  );
-}
-
 function Home() {
   const [productos, setProductos] = useState({}); // { clave: [productos] }
   const [loading, setLoading] = useState(true);
@@ -247,9 +158,6 @@ function Home() {
       <h1 className="visually-hidden">
         El Puesto de la Dieta: encurtidos, gildas, especias, dulces y frutos secos
       </h1>
-
-      {/* 1. Pestañas de categorías */}
-      <BarraCategorias />
 
       {/* 2. Secciones de productos (Productos de campaña, Productos destacados, Top ventas) */}
       {seccionesConProductos.map((sec) => {

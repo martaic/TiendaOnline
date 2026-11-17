@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import './styles/Home.css';
 import { useCart } from './context/CartContext';
+import ModalProducto from './components/ModalProducto';
 import { getCollectionProducts } from './shopifyClient';
 
 // Formatea precios al estilo español: 3,50 €
@@ -19,106 +20,6 @@ const esMixAGusto = (producto) => esMix(producto) && producto.nombre.toLowerCase
 
 // Cuántas variedades elige el cliente para su mix (para todos los tamaños)
 const GILDAS_POR_MIX = 6;
-
-// ================= VENTANA EMERGENTE BASE =================
-function Modal({ titulo, colorCabecera = 'bg-success', grande = false, onClose, children, pie }) {
-  // Cerrar con Escape y bloquear el scroll del fondo mientras está abierta
-  useEffect(() => {
-    const handleKey = (e) => {
-      if (e.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', handleKey);
-    const overflowAnterior = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.removeEventListener('keydown', handleKey);
-      document.body.style.overflow = overflowAnterior;
-    };
-  }, [onClose]);
-
-  return (
-    <div
-      className="modal fade show d-block"
-      tabIndex="-1"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modal-titulo"
-      style={{ backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1050 }}
-      onClick={onClose}
-    >
-      <div
-        className={`modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down ${
-          grande ? 'modal-lg' : ''
-        }`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="modal-content border-0 shadow-lg">
-          <div className={`modal-header text-white ${colorCabecera}`}>
-            <h2 id="modal-titulo" className="modal-title fw-bold fs-5">
-              {titulo}
-            </h2>
-            <button
-              type="button"
-              className="btn-close btn-close-white"
-              aria-label="Cerrar"
-              onClick={onClose}
-              autoFocus
-            ></button>
-          </div>
-          <div className="modal-body p-4">{children}</div>
-          {pie && <div className="modal-footer border-0 p-3">{pie}</div>}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ================= FICHA DE INGREDIENTES =================
-function ModalIngredientes({ producto, onClose }) {
-  return (
-    <Modal
-      titulo={producto.nombre}
-      onClose={onClose}
-      pie={
-        <button type="button" className="btn btn-secondary w-100 py-2 fw-bold" onClick={onClose}>
-          Cerrar y seguir comprando
-        </button>
-      }
-    >
-      <div className="text-center">
-        {producto.imagen_url && (
-          <img
-            src={producto.imagen_url}
-            alt={producto.imagen_alt || producto.nombre}
-            className="img-fluid rounded mb-3 shadow-sm"
-            style={{ maxHeight: '240px', width: '100%', objectFit: 'cover' }}
-          />
-        )}
-      </div>
-      {/* Si no hay descripción en Shopify, no se muestra el apartado (salvo en los mixes) */}
-      {(producto.descripcion || esMix(producto)) && (
-        <>
-          <h3 className="fw-bold text-success fs-6 mt-3">
-            {esMixAGusto(producto)
-              ? 'Tu mix de gildas:'
-              : esMix(producto)
-                ? 'Gildas que lleva el mix:'
-                : 'Ingredientes y alérgenos:'}
-          </h3>
-          <p
-            className="text-muted bg-light p-3 rounded"
-            style={{ whiteSpace: 'pre-line', lineHeight: '1.6' }}
-          >
-            {producto.descripcion ||
-              (esMixAGusto(producto)
-                ? `Elige ${GILDAS_POR_MIX} de nuestras gildas en la tarjeta del mix y te lo preparamos con ellas, en el tamaño que prefieras.`
-                : 'Preparamos el mix con una selección de todas nuestras gildas.')}
-          </p>
-        </>
-      )}
-    </Modal>
-  );
-}
 
 // ================= TARJETA DE PRODUCTO =================
 function TarjetaGilda({ item, onVerInfo, onAdd, opcionesMix = [] }) {
@@ -428,7 +329,25 @@ function Gildas() {
       )}
 
       {productoSeleccionado && (
-        <ModalIngredientes producto={productoSeleccionado} onClose={cerrarIngredientes} />
+        <ModalProducto
+          producto={productoSeleccionado}
+          onClose={cerrarIngredientes}
+          onAdd={addToCart}
+          {...(esMixAGusto(productoSeleccionado)
+            ? {
+                // El mix a tu gusto se compra desde su tarjeta, eligiendo las gildas
+                tituloInfo: 'Tu mix de gildas:',
+                textoInfo: `Elige ${GILDAS_POR_MIX} de nuestras gildas en la tarjeta del mix y te lo preparamos con ellas, en el tamaño que prefieras.`,
+                permitirCompra: false,
+                aviso: `Cierra esta ventana y elige tus ${GILDAS_POR_MIX} gildas en la tarjeta del mix.`,
+              }
+            : esMix(productoSeleccionado)
+              ? {
+                  tituloInfo: 'Gildas que lleva el mix:',
+                  textoInfo: 'Preparamos el mix con una selección de todas nuestras gildas.',
+                }
+              : {})}
+        />
       )}
 
     </div>

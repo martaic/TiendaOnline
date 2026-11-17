@@ -9,7 +9,6 @@
     background-color: #ffffff;
     border-bottom: 1px solid #e6ebdc;
     box-shadow: 0 2px 8px rgba(85, 107, 47, 0.06);
-    margin-bottom: 2.5rem;
 }
 
 .categorias-lista {
@@ -76,6 +75,13 @@
     height: 24px;
     object-fit: contain;
     transition: transform 0.2s ease;
+}
+
+/* Pestaña de la sección en la que estás */
+.categoria-pill.active {
+    background-color: #556b2f;
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(85, 107, 47, 0.25);
 }
 
 /* Flechas para desplazarse cuando no caben todas las pestañas */
@@ -145,6 +151,12 @@
 .product-card:hover {
     transform: translateY(-8px);
     box-shadow: 0 12px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* En las páginas de categoría, la tarjeta ocupa todo el ancho de su columna
+   (antes medía 18rem fijos y en el móvil quedaba un hueco a la derecha) */
+.row > [class*="col-"] > .product-card {
+    width: 100%;
 }
 
 /* 5. Imágenes uniformes */

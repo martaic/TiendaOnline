@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import './styles/Home.css';
 import { useCart } from './context/CartContext';
+import ModalProducto from './components/ModalProducto';
 import { getCollectionProducts } from './shopifyClient';
 
 // Formatea precios al estilo español: 3,50 €
@@ -132,92 +133,8 @@ function TarjetaConserva({ item, onVerInfo, onAdd }) {
   );
 }
 
-// ================= VENTANA EMERGENTE (MODAL) =================
-function ModalProducto({ producto, onClose }) {
-  // Cerrar con la tecla Escape y bloquear el scroll de fondo mientras está abierto
-  useEffect(() => {
-    const handleKey = (e) => {
-      if (e.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', handleKey);
-    const overflowAnterior = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-
-    return () => {
-      document.removeEventListener('keydown', handleKey);
-      document.body.style.overflow = overflowAnterior;
-    };
-  }, [onClose]);
-
-  return (
-    <div
-      className="modal fade show d-block"
-      tabIndex="-1"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modal-producto-titulo"
-      style={{ backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1050 }}
-      onClick={onClose} // Cierra al pulsar fuera
-    >
-      <div
-        className="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="modal-content border-0 shadow-lg">
-          <div className="modal-header bg-success text-white">
-            <h2 id="modal-producto-titulo" className="modal-title fw-bold fs-5">
-              {producto.nombre}
-            </h2>
-            <button
-              type="button"
-              className="btn-close btn-close-white"
-              aria-label="Cerrar"
-              onClick={onClose}
-              autoFocus
-            ></button>
-          </div>
-
-          <div className="modal-body text-center p-4">
-            {producto.imagen_url && (
-              <img
-                src={producto.imagen_url}
-                alt={producto.imagen_alt || producto.nombre}
-                className="img-fluid rounded mb-3 shadow-sm"
-                style={{ maxHeight: '240px', width: '100%', objectFit: 'cover' }}
-              />
-            )}
-
-            {/* Si el producto no tiene descripción en Shopify, no se muestra este apartado */}
-            {producto.descripcion && (
-              <div className="text-start mt-3">
-                <h3 className="fw-bold text-success fs-6">Ingredientes y alérgenos:</h3>
-                <p
-                  className="text-muted bg-light p-3 rounded"
-                  style={{ whiteSpace: 'pre-line', lineHeight: '1.6' }}
-                >
-                  {producto.descripcion}
-                </p>
-              </div>
-            )}
-          </div>
-
-          <div className="modal-footer border-0 p-3">
-            <button
-              type="button"
-              className="btn btn-secondary w-100 py-2 fw-bold"
-              onClick={onClose}
-            >
-              Cerrar y seguir comprando
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ================= PÁGINA =================
-function Envases() {
+function Conservas() {
   const [productos, setProductos] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(false);
@@ -228,12 +145,13 @@ function Envases() {
 
   // Título de la pestaña del navegador (también ayuda en Google)
   useEffect(() => {
-    document.title = 'Envases | El Puesto de la Dieta';
+    document.title = 'Conservas | El Puesto de la Dieta';
   }, []);
 
   useEffect(() => {
     let cancelado = false;
 
+    // La colección de Shopify sigue llamándose "envases" (su URL no se ha cambiado)
     getCollectionProducts('envases')
       .then((productosShopify) => {
         if (cancelado) return;
@@ -241,7 +159,7 @@ function Envases() {
         setError(false);
       })
       .catch((err) => {
-        console.error('Error cargando envases:', err);
+        console.error('Error cargando conservas:', err);
         if (!cancelado) setError(true);
       })
       .finally(() => {
@@ -267,7 +185,7 @@ function Envases() {
       <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
         <div className="text-center">
           <div className="spinner-border text-success mb-2" role="status"></div>
-          <p className="text-muted">Cargando envases...</p>
+          <p className="text-muted">Cargando conservas...</p>
         </div>
       </div>
     );
@@ -277,7 +195,7 @@ function Envases() {
     <div className="container py-5">
       <div className="text-center mb-5">
         <h1 className="fw-bold text-success" style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)' }}>
-          Envases
+          Conservas
         </h1>
         <p className="lead text-muted">
           Conservas en lata listas para abrir y disfrutar.
@@ -296,7 +214,7 @@ function Envases() {
         </div>
       ) : productos.length === 0 ? (
         <p className="text-center text-muted py-5">
-          Ahora mismo no hay envases disponibles. ¡Vuelve pronto!
+          Ahora mismo no hay conservas disponibles. ¡Vuelve pronto!
         </p>
       ) : (
         <div className="row g-4">
@@ -312,10 +230,14 @@ function Envases() {
       )}
 
       {productoSeleccionado && (
-        <ModalProducto producto={productoSeleccionado} onClose={cerrarModal} />
+        <ModalProducto
+          producto={productoSeleccionado}
+          onClose={cerrarModal}
+          onAdd={addToCart}
+        />
       )}
     </div>
   );
 }
 
-export default Envases;
+export default Conservas;

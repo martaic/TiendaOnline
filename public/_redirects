@@ -1,1 +1,5 @@
+# La antigua sección Envases ahora es Conservas (redirección permanente para Google y enlaces viejos)
+/envases      /conservas      301
+
+# Web de una sola página: cualquier otra dirección carga la web
 /*    /index.html   200

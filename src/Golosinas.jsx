@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import './styles/Home.css';
 import { useCart } from './context/CartContext';
+import ModalProducto from './components/ModalProducto';
 import { getCollectionProducts } from './shopifyClient';
 
 // Formatea precios al estilo español: 3,50 €
@@ -132,90 +133,6 @@ function TarjetaFrutoSeco({ item, onVerInfo, onAdd }) {
   );
 }
 
-// ================= VENTANA EMERGENTE (MODAL) =================
-function ModalProducto({ producto, onClose }) {
-  // Cerrar con la tecla Escape y bloquear el scroll de fondo mientras está abierto
-  useEffect(() => {
-    const handleKey = (e) => {
-      if (e.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', handleKey);
-    const overflowAnterior = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-
-    return () => {
-      document.removeEventListener('keydown', handleKey);
-      document.body.style.overflow = overflowAnterior;
-    };
-  }, [onClose]);
-
-  return (
-    <div
-      className="modal fade show d-block"
-      tabIndex="-1"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modal-producto-titulo"
-      style={{ backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1050 }}
-      onClick={onClose} // Cierra al pulsar fuera
-    >
-      <div
-        className="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="modal-content border-0 shadow-lg">
-          <div className="modal-header bg-danger text-white">
-            <h2 id="modal-producto-titulo" className="modal-title fw-bold fs-5">
-              {producto.nombre}
-            </h2>
-            <button
-              type="button"
-              className="btn-close btn-close-white"
-              aria-label="Cerrar"
-              onClick={onClose}
-              autoFocus
-            ></button>
-          </div>
-
-          <div className="modal-body text-center p-4">
-            {producto.imagen_url && (
-              <img
-                src={producto.imagen_url}
-                alt={producto.imagen_alt || producto.nombre}
-                className="img-fluid rounded mb-3 shadow-sm"
-                style={{ maxHeight: '240px', width: '100%', objectFit: 'cover' }}
-              />
-            )}
-
-            {/* Si el producto no tiene descripción en Shopify (p. ej. el coco), no se muestra este apartado */}
-            {producto.descripcion && (
-              <div className="text-start mt-3">
-                <h3 className="fw-bold text-danger fs-6">Ingredientes y alérgenos:</h3>
-                <p
-                  className="text-muted bg-light p-3 rounded"
-                  style={{ whiteSpace: 'pre-line', lineHeight: '1.6' }}
-                >
-                  {producto.descripcion}
-                </p>
-              </div>
-            )}
-          </div>
-
-          <div className="modal-footer border-0 p-3">
-            <button
-              type="button"
-              className="btn btn-secondary w-100 py-2 fw-bold"
-              onClick={onClose}
-            >
-              Cerrar y seguir comprando
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ================= PÁGINA =================
 function FrutosSecos() {
   const [productos, setProductos] = useState([]);
@@ -313,7 +230,11 @@ function FrutosSecos() {
       )}
 
       {productoSeleccionado && (
-        <ModalProducto producto={productoSeleccionado} onClose={cerrarModal} />
+        <ModalProducto
+          producto={productoSeleccionado}
+          onClose={cerrarModal}
+          onAdd={addToCart} color="danger"
+        />
       )}
     </div>
   );

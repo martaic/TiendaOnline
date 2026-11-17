@@ -1,10 +1,11 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 import Home from './Home';
 import Aceitunas from './Aceitunas';
 import Dulces from './Dulces';
 import Navbar from './Navbar';
+import BarraCategorias from './components/BarraCategorias';
 import BarraAvisos from './BarraAvisos';
 import Footer from './Footer';
 import Especias from './Especias';
@@ -12,7 +13,7 @@ import Gildas from './Gildas';
 import Golosinas from './Golosinas';
 import Carrito from './Carrito';
 import Fritos from './Fritos';
-import Envases from './Envases';
+import Conservas from './Conservas';
 import Caramelos from './Caramelos';
 import Miel from './Miel';
 import FrutaDeshidratada from './FrutaDeshidratada';
@@ -28,13 +29,16 @@ function App() {
       <BrowserRouter>
         <BarraAvisos />
         <Navbar />
+        <BarraCategorias />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/aceitunas" element={<Aceitunas />} />
           <Route path="/dulces" element={<Dulces />} />
           <Route path="/especias" element={<Especias />} />
           <Route path="/fritos" element={<Fritos />} />
-          <Route path="/envases" element={<Envases />} />
+          <Route path="/conservas" element={<Conservas />} />
+          {/* Dirección antigua: lleva a la nueva */}
+          <Route path="/envases" element={<Navigate to="/conservas" replace />} />
           <Route path="/caramelos" element={<Caramelos />} />
           <Route path="/miel" element={<Miel />} />
           <Route path="/fruta-deshidratada" element={<FrutaDeshidratada />} />

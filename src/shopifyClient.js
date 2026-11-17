@@ -180,3 +180,51 @@ export async function buscarProductos(texto) {
   const hayStock = (producto) => producto.variantes.some((v) => v.availableForSale !== false);
   return [...encontrados.filter(hayStock), ...encontrados.filter((p) => !hayStock(p))];
 }
+// ================= TOP VENTAS =================
+// Si en Shopify existe la colección "top-ventas" con productos, se usa esa (elección manual).
+// Si no, se calcula sola con los productos más vendidos de la tienda.
+const TOP_VENTAS_QUERY = `
+  query TopVentas($cantidad: Int!) {
+    products(first: $cantidad, sortKey: BEST_SELLING) {
+      nodes {
+        id
+        title
+        handle
+        description
+        availableForSale
+
+        featuredImage {
+          url(transform: { maxWidth: 800 })
+          altText
+        }
+
+        variants(first: 20) {
+          nodes {
+            id
+            title
+            availableForSale
+            price {
+              amount
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export async function getTopVentas(cantidad = 10) {
+  const manual = await getCollectionProducts('top-ventas').catch(() => []);
+  if (manual.length > 0) return manual.slice(0, cantidad);
+
+  // Pedimos algunos de más por si hay agotados, que no mostramos
+  const result = await shopifyFetch(TOP_VENTAS_QUERY, { cantidad: cantidad + 10 });
+  if (result.errors) {
+    console.error('ERROR SHOPIFY (top ventas):', result.errors);
+    throw new Error('Error cargando los más vendidos');
+  }
+  return (result?.data?.products?.nodes || [])
+    .filter((node) => node.availableForSale !== false)
+    .map(adaptarProducto)
+    .slice(0, cantidad);
+}

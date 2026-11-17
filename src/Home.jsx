@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import './styles/Home.css';
 import { Link } from 'react-router-dom';
 import { useCart } from './context/CartContext';
-import { getCollectionProducts } from './shopifyClient';
+import { getCollectionProducts, getTopVentas } from './shopifyClient';
 import PreguntasFrecuentes from './PreguntasFrecuentes';
 
 // Formatea precios al estilo español: 3,50 €
@@ -27,8 +27,20 @@ const CATEGORIAS = [
   { nombre: 'Miel', ruta: '/miel', icono: '/iconos/miel.png' },
 ];
 
-// Tarjeta de producto reutilizable para Destacados y Novedades
-function TarjetaProducto({ item, variante = 'destacado', onAdd }) {
+// ================= SECCIONES DE LA PORTADA =================
+// Para cambiar el orden, los títulos o la colección de Shopify, toca solo esta lista.
+// Una sección sin productos no se muestra.
+//  - coleccion: nombre de la colección en Shopify (su "handle", el final de la URL)
+//  - estilo: 'normal', 'campana' (marco naranja y título rojo) o 'top' (con su número de puesto)
+const SECCIONES = [
+  { clave: 'campana', titulo: 'Productos de campaña', coleccion: 'novedades', estilo: 'campana' },
+  { clave: 'destacados', titulo: 'Productos destacados', coleccion: 'destacados', estilo: 'normal' },
+  // Top ventas: usa la colección "top-ventas" si existe; si no, los más vendidos automáticamente
+  { clave: 'top', titulo: 'Top ventas', top: true, estilo: 'top' },
+];
+
+// Tarjeta de producto reutilizable para las secciones de la portada
+function TarjetaProducto({ item, variante = 'normal', puesto, onAdd }) {
   const [anadido, setAnadido] = useState(false);
 
   // Usamos la primera VARIANTE: es lo que Shopify necesita para el pago
@@ -40,7 +52,7 @@ function TarjetaProducto({ item, variante = 'destacado', onAdd }) {
   const cantidad = varianteShopify.title !== 'Default Title' ? varianteShopify.title : null;
 
   const agotado = varianteShopify.availableForSale === false;
-  const esNovedad = variante === 'novedad';
+  const esCampana = variante === 'campana';
 
   const handleAdd = () => {
     onAdd({
@@ -58,9 +70,19 @@ function TarjetaProducto({ item, variante = 'destacado', onAdd }) {
 
   return (
     <div
-      className={`card product-card flex-shrink-0 ${esNovedad ? 'border-warning' : ''}`}
+      className={`card product-card flex-shrink-0 ${esCampana ? 'border-warning' : ''}`}
       style={{ width: '250px' }}
     >
+      {/* Número de puesto en Top ventas */}
+      {puesto && (
+        <span
+          className="badge rounded-pill position-absolute m-2 fs-6"
+          style={{ top: 0, left: 0, zIndex: 1, backgroundColor: '#556b2f' }}
+        >
+          Nº {puesto}
+        </span>
+      )}
+
       {item.imagen_url ? (
         <img
           src={item.imagen_url}
@@ -92,7 +114,7 @@ function TarjetaProducto({ item, variante = 'destacado', onAdd }) {
         </p>
 
         <button
-          className={`btn w-100 mt-auto ${esNovedad ? 'btn-outline-danger' : 'btn-success'}`}
+          className={`btn w-100 mt-auto ${esCampana ? 'btn-outline-danger' : 'btn-success'}`}
           onClick={handleAdd}
           disabled={agotado}
         >
@@ -178,31 +200,29 @@ function BarraCategorias() {
 }
 
 function Home() {
-  const [destacados, setDestacados] = useState([]);
-  const [novedades, setNovedades] = useState([]);
+  const [productos, setProductos] = useState({}); // { clave: [productos] }
   const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
 
   useEffect(() => {
     async function cargarHome() {
-      // allSettled: si una colección falla, la otra se muestra igualmente
-      const [resDestacados, resNovedades] = await Promise.allSettled([
-        getCollectionProducts('destacados'),
-        getCollectionProducts('novedades'),
-      ]);
+      // allSettled: si una sección falla, las demás se muestran igualmente
+      const resultados = await Promise.allSettled(
+        SECCIONES.map((sec) => (sec.top ? getTopVentas(10) : getCollectionProducts(sec.coleccion)))
+      );
 
-      if (resDestacados.status === 'fulfilled') {
-        setDestacados(resDestacados.value || []);
-      } else {
-        console.error('Error al cargar Destacados:', resDestacados.reason);
-      }
+      const porSeccion = {};
+      resultados.forEach((res, i) => {
+        const { clave, titulo } = SECCIONES[i];
+        if (res.status === 'fulfilled') {
+          porSeccion[clave] = res.value || [];
+        } else {
+          console.error(`Error al cargar ${titulo}:`, res.reason);
+          porSeccion[clave] = [];
+        }
+      });
 
-      if (resNovedades.status === 'fulfilled') {
-        setNovedades(resNovedades.value || []);
-      } else {
-        console.error('Error al cargar Novedades:', resNovedades.reason);
-      }
-
+      setProductos(porSeccion);
       setLoading(false);
     }
     cargarHome();
@@ -219,6 +239,8 @@ function Home() {
     );
   }
 
+  const seccionesConProductos = SECCIONES.filter((sec) => (productos[sec.clave] || []).length > 0);
+
   return (
     <div className="container-home">
       {/* Título principal para Google y lectores de pantalla (no se ve) */}
@@ -229,45 +251,42 @@ function Home() {
       {/* 1. Pestañas de categorías */}
       <BarraCategorias />
 
-      {/* 2. Productos destacados (colección "destacados" de Shopify) */}
-      {destacados.length > 0 && (
-        <section className="container py-5">
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <h2 className="section-title mb-0">Productos destacados</h2>
-          </div>
+      {/* 2. Secciones de productos (Productos de campaña, Productos destacados, Top ventas) */}
+      {seccionesConProductos.map((sec) => {
+        const esCampana = sec.estilo === 'campana';
+        return (
+          <section
+            key={sec.clave}
+            className={`container py-5 ${esCampana ? 'bg-light rounded-4' : ''}`}
+          >
+            <div className={`d-flex justify-content-between align-items-center mb-4 ${esCampana ? 'px-3' : ''}`}>
+              <h2 className={`section-title mb-0 ${esCampana ? 'text-danger' : ''}`}>{sec.titulo}</h2>
+            </div>
 
-          <div className="slider-productos d-flex gap-3" style={{ overflowX: 'auto', paddingBottom: '15px' }}>
-            {destacados.map((item) => (
-              <TarjetaProducto key={item.id} item={item} onAdd={addToCart} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* 3. Novedades (colección "novedades" de Shopify) */}
-      {novedades.length > 0 && (
-        <section className="container py-5 bg-light rounded-4">
-          <div className="d-flex justify-content-between align-items-center mb-4 px-3">
-            <h2 className="section-title mb-0 text-danger">Novedades</h2>
-          </div>
-
-          <div className="slider-productos d-flex gap-3" style={{ overflowX: 'auto', paddingBottom: '15px' }}>
-            {novedades.map((item) => (
-              <TarjetaProducto key={item.id} item={item} variante="novedad" onAdd={addToCart} />
-            ))}
-          </div>
-        </section>
-      )}
+            <div className="slider-productos d-flex gap-3" style={{ overflowX: 'auto', paddingBottom: '15px' }}>
+              {productos[sec.clave].map((item, i) => (
+                <TarjetaProducto
+                  key={item.id}
+                  item={item}
+                  variante={sec.estilo}
+                  puesto={sec.estilo === 'top' ? i + 1 : undefined}
+                  onAdd={addToCart}
+                />
+              ))}
+            </div>
+          </section>
+        );
+      })}
 
       {/* Si Shopify no devuelve nada, avisamos en lugar de dejar la página vacía */}
-      {destacados.length === 0 && novedades.length === 0 && (
+      {seccionesConProductos.length === 0 && (
         <div className="container py-5 text-center text-muted">
           <p className="mb-3">Estamos preparando el puesto. Echa un vistazo a nuestras categorías:</p>
           <Link to="/aceitunas" className="btn btn-success rounded-pill px-4" style={{ backgroundColor: '#556b2f', border: 'none' }}>Ver productos</Link>
         </div>
       )}
 
-      {/* 4. Preguntas frecuentes */}
+      {/* 3. Preguntas frecuentes */}
       <PreguntasFrecuentes />
     </div>
   );

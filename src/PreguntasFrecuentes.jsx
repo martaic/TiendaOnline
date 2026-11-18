@@ -28,8 +28,8 @@ const PREGUNTAS = [
     pregunta: '¿Cómo puedo pagar?',
     respuesta: (
       <>
-        Con tarjeta de crédito o débito. En la página de pago verás todas las formas de pago
-        disponibles en ese momento.
+        Con <strong>tarjeta</strong> de crédito o débito, <strong>Bizum</strong>, Apple Pay o
+        Google Pay. El pago se hace en una página segura de Shopify.
       </>
     ),
   },

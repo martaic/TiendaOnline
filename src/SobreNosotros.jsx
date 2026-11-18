@@ -1,4 +1,14 @@
+import useSeo from './hooks/useSeo';
+
 function SobreNosotros() {
+  // Título y descripción para Google
+  useSeo({
+    titulo: 'Sobre nosotros',
+    ruta: '/sobre-nosotros',
+    descripcion:
+      'Conoce El Puesto de la Dieta, desde Jaraíz de la Vera (Cáceres): aceitunas, encurtidos, frutos secos y dulces de nuestro puesto, ahora también online.',
+  });
+
   return (
     <div className="container py-5">
 

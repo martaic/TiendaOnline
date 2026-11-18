@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   TRANSPORTISTA,
@@ -8,6 +7,7 @@ import {
   DIA_CORTE,
   PLAZO,
 } from './datosEnvio';
+import useSeo from './hooks/useSeo';
 
 // Los datos de envío (precio, días, hora y plazo) se cambian en src/datosEnvio.js
 // Envío gratis desactivado de momento. Para volver a activarlo, pon el importe (p. ej. '50 €')
@@ -17,9 +17,12 @@ const ENVIO_GRATIS_DESDE = null;
 const COLUMNA = ENVIO_GRATIS_DESDE ? 'col-6 col-md-3' : 'col-12 col-sm-4';
 
 function PoliticaEnvios() {
-  useEffect(() => {
-    document.title = 'Política de envíos | El Puesto de la Dieta';
-  }, []);
+  // Título y descripción para Google
+  useSeo({
+    titulo: 'Política de envíos', ruta: '/politica-envios',
+    descripcion:
+      'Envíos de El Puesto de la Dieta con TIPSA a toda la península por 6,90 €. Entrega en 24-48 horas laborables desde que sale tu pedido.',
+  });
 
   return (
     <div className="container py-5" style={{ maxWidth: '760px' }}>

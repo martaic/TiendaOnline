@@ -4,6 +4,8 @@ import { useCart } from './context/CartContext';
 import ModalProducto from './components/ModalProducto';
 import { useSearchParams } from 'react-router-dom';
 import { buscarProductos } from './shopifyClient';
+import useSeo from './hooks/useSeo';
+import { precioPorKilo } from './utils/precioKilo';
 
 // Formatea precios al estilo español: 3,50 €
 const formatoEuro = new Intl.NumberFormat('es-ES', {
@@ -115,8 +117,10 @@ function TarjetaResultado({ item, onVerInfo, onAdd }) {
           <p className="fs-4 fw-bold text-success mt-auto mb-3">
             {formatearPrecio(varianteActual.price?.amount)}
             {cantidad && <span className="fs-6 fw-normal text-muted"> · {cantidad}</span>}
-            <span className="d-block fw-normal text-muted" style={{ fontSize: '0.75rem' }}>
+            <span className="d-block fw-normal text-muted" style={{ fontSize: '0.8125rem' }}>
               IVA incluido
+              {precioPorKilo(varianteActual.price?.amount, varianteActual.title, item.nombre) &&
+                ` · ${precioPorKilo(varianteActual.price?.amount, varianteActual.title, item.nombre)}`}
             </span>
           </p>
 
@@ -124,6 +128,7 @@ function TarjetaResultado({ item, onVerInfo, onAdd }) {
             type="button"
             className="btn btn-success w-100"
             onClick={handleAdd}
+            aria-label={`Añadir ${item.nombre} al carrito`}
             disabled={agotado}
           >
             {agotado ? 'Agotado' : anadido ? '✓ Añadido' : 'Añadir al carrito'}
@@ -147,11 +152,8 @@ function Buscar() {
 
   const { addToCart } = useCart();
 
-  useEffect(() => {
-    document.title = busqueda
-      ? `Buscar "${busqueda}" | El Puesto de la Dieta`
-      : 'Buscar | El Puesto de la Dieta';
-  }, [busqueda]);
+  // El buscador no debe salir en Google
+  useSeo({ titulo: busqueda ? `Buscar "${busqueda}"` : 'Buscar', ruta: '/buscar', noindex: true });
 
   // Mientras se escribe, esperamos un poco antes de buscar (para no buscar en cada letra)
   useEffect(() => {

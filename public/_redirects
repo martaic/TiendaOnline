@@ -1,5 +1,23 @@
-# La antigua sección Envases ahora es Conservas (redirección permanente para Google y enlaces viejos)
+# ================= REDIRECCIONES Y PÁGINAS DE LA WEB (Cloudflare Pages) =================
+# La antigua sección Envases ahora es Conservas (redirección permanente)
 /envases      /conservas      301
 
-# Web de una sola página: cualquier otra dirección carga la web
-/*    /index.html   200
+# Páginas que existen: cargan la web (index.html).
+# ¡OJO! Si se añade una página nueva en App.jsx, hay que añadirla también aquí.
+# Cualquier dirección que no esté en esta lista muestra la página 404 (con código 404 de verdad).
+/aceitunas               /index.html   200
+/dulces                  /index.html   200
+/especias                /index.html   200
+/fritos                  /index.html   200
+/conservas               /index.html   200
+/caramelos               /index.html   200
+/miel                    /index.html   200
+/fruta-deshidratada      /index.html   200
+/gildas                  /index.html   200
+/golosinas               /index.html   200
+/carrito                 /index.html   200
+/sobre-nosotros          /index.html   200
+/politica-envios         /index.html   200
+/contacto                /index.html   200
+/buscar                  /index.html   200
+/preguntas-frecuentes    /index.html   200

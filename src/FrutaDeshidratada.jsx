@@ -3,6 +3,8 @@ import './styles/Home.css';
 import { useCart } from './context/CartContext';
 import ModalProducto from './components/ModalProducto';
 import { getCollectionProducts } from './shopifyClient';
+import useSeo from './hooks/useSeo';
+import { precioPorKilo } from './utils/precioKilo';
 
 // Formatea precios al estilo español: 3,50 €
 const formatoEuro = new Intl.NumberFormat('es-ES', {
@@ -114,8 +116,10 @@ function TarjetaFruta({ item, onVerInfo, onAdd }) {
           <p className="fs-4 fw-bold text-success mt-auto mb-3">
             {formatearPrecio(varianteActual.price?.amount)}
             {cantidad && <span className="fs-6 fw-normal text-muted"> · {cantidad}</span>}
-            <span className="d-block fw-normal text-muted" style={{ fontSize: '0.75rem' }}>
+            <span className="d-block fw-normal text-muted" style={{ fontSize: '0.8125rem' }}>
               IVA incluido
+              {precioPorKilo(varianteActual.price?.amount, varianteActual.title, item.nombre) &&
+                ` · ${precioPorKilo(varianteActual.price?.amount, varianteActual.title, item.nombre)}`}
             </span>
           </p>
 
@@ -123,6 +127,7 @@ function TarjetaFruta({ item, onVerInfo, onAdd }) {
             type="button"
             className="btn btn-success w-100"
             onClick={handleAdd}
+            aria-label={`Añadir ${item.nombre} al carrito`}
             disabled={agotado}
           >
             {agotado ? 'Agotado' : anadido ? '✓ Añadido' : 'Añadir al carrito'}
@@ -143,10 +148,12 @@ function FrutaDeshidratada() {
 
   const { addToCart } = useCart();
 
-  // Título de la pestaña del navegador (también ayuda en Google)
-  useEffect(() => {
-    document.title = 'Fruta deshidratada | El Puesto de la Dieta';
-  }, []);
+  // Título y descripción para Google
+  useSeo({
+    titulo: 'Fruta deshidratada', ruta: '/fruta-deshidratada',
+    descripcion:
+      'Fruta deshidratada y liofilizada de El Puesto de la Dieta: todo el sabor de la fruta. Compra online con envío a la península en 24-48 horas.',
+  });
 
   useEffect(() => {
     let cancelado = false;

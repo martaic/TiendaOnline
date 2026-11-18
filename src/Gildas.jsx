@@ -1,8 +1,10 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import './styles/Home.css';
 import { useCart } from './context/CartContext';
 import ModalProducto from './components/ModalProducto';
 import { getCollectionProducts } from './shopifyClient';
+import useSeo from './hooks/useSeo';
+import { precioPorKilo } from './utils/precioKilo';
 
 // Formatea precios al estilo español: 3,50 €
 const formatoEuro = new Intl.NumberFormat('es-ES', {
@@ -33,6 +35,26 @@ function TarjetaGilda({ item, onVerInfo, onAdd, opcionesMix = [] }) {
   const [anadido, setAnadido] = useState(false);
   // Gildas elegidas para el mix (solo se usa en la tarjeta del mix)
   const [elegidas, setElegidas] = useState([]);
+  // Desplegable de gildas del mix (abierto / cerrado)
+  const [listaAbierta, setListaAbierta] = useState(false);
+  const selectorRef = useRef(null);
+
+  // Cerrar el desplegable al pulsar fuera de él o con Escape
+  useEffect(() => {
+    if (!listaAbierta) return undefined;
+    const alPulsarFuera = (e) => {
+      if (selectorRef.current && !selectorRef.current.contains(e.target)) setListaAbierta(false);
+    };
+    const alPulsarTecla = (e) => {
+      if (e.key === 'Escape') setListaAbierta(false);
+    };
+    document.addEventListener('mousedown', alPulsarFuera);
+    document.addEventListener('keydown', alPulsarTecla);
+    return () => {
+      document.removeEventListener('mousedown', alPulsarFuera);
+      document.removeEventListener('keydown', alPulsarTecla);
+    };
+  }, [listaAbierta]);
 
   const varianteActual = variantes.find((v) => v.id === varianteId) || variantes[0];
   if (!varianteActual) return null;
@@ -90,7 +112,12 @@ function TarjetaGilda({ item, onVerInfo, onAdd, opcionesMix = [] }) {
 
   return (
     <div className="col-12 col-sm-6 col-lg-4">
-      <div className={`card h-100 shadow-sm product-card ${mix ? 'border-warning border-2' : 'border-0'}`}>
+      <div
+        className={`card h-100 shadow-sm product-card ${mix ? 'border-warning border-2' : 'border-0'}`}
+        // El mix a tu gusto deja salir su desplegable por fuera de la tarjeta
+        // (y se pone por encima de las demás tarjetas mientras está abierto)
+        style={aGusto ? { overflow: 'visible', zIndex: listaAbierta ? 30 : 'auto' } : undefined}
+      >
         {mix && (
           <span className="badge bg-warning text-dark position-absolute m-2" style={{ top: 0, right: 0, zIndex: 1 }}>
             {aGusto ? 'Elige tus gildas' : 'Mix de gildas'}
@@ -167,44 +194,78 @@ function TarjetaGilda({ item, onVerInfo, onAdd, opcionesMix = [] }) {
             </div>
           )}
 
-          {/* Selector de gildas del mix */}
+          {/* Selector de gildas del mix: un desplegable para que la tarjeta no se estire */}
           {aGusto && necesarias > 0 && (
-            <fieldset className="mb-3 text-start">
-              <legend className="form-label small fw-bold text-center w-100 mb-2">
-                Elige {necesarias} gildas para tu mix{' '}
-                <span className={faltan === 0 ? 'text-success' : 'text-muted'}>
-                  ({elegidas.length}/{necesarias})
-                </span>
-              </legend>
-              <div className="d-flex flex-wrap gap-2 justify-content-center">
-                {opcionesMix.map((nombre) => {
-                  const marcada = elegidas.includes(nombre);
-                  const bloqueada = !marcada && elegidas.length >= necesarias;
-                  return (
-                    <button
-                      key={nombre}
-                      type="button"
-                      className={`btn btn-sm rounded-pill ${
-                        marcada ? 'btn-success' : 'btn-outline-success'
-                      }`}
-                      onClick={() => alternarGilda(nombre)}
-                      disabled={bloqueada}
-                      aria-pressed={marcada}
-                    >
-                      {marcada && <i className="bi bi-check-lg me-1" aria-hidden="true"></i>}
-                      {nombre}
-                    </button>
-                  );
-                })}
-              </div>
-            </fieldset>
+            <div className="mb-3 position-relative text-start" ref={selectorRef}>
+              <span className="form-label small fw-bold d-block text-center" id={`mix-${item.id}`}>
+                Elige {necesarias} gildas para tu mix
+              </span>
+              <button
+                type="button"
+                className={`form-select text-start ${faltan === 0 ? 'border-success' : ''}`}
+                onClick={() => setListaAbierta((abierta) => !abierta)}
+                aria-expanded={listaAbierta}
+                aria-labelledby={`mix-${item.id}`}
+              >
+                {elegidas.length === 0
+                  ? 'Selecciona tus gildas'
+                  : `${elegidas.length} de ${necesarias} elegidas`}
+              </button>
+
+              {listaAbierta && (
+                <div
+                  className="card shadow position-absolute start-0 end-0 mt-1 p-2"
+                  style={{ zIndex: 20, maxHeight: '260px', overflowY: 'auto' }}
+                >
+                  {opcionesMix.map((nombre) => {
+                    const marcada = elegidas.includes(nombre);
+                    const bloqueada = !marcada && elegidas.length >= necesarias;
+                    const idOpcion = `mix-${item.id}-${nombre}`;
+                    return (
+                      <div key={nombre} className="form-check py-1">
+                        <input
+                          className="form-check-input"
+                          type="checkbox"
+                          id={idOpcion}
+                          checked={marcada}
+                          disabled={bloqueada}
+                          onChange={() => alternarGilda(nombre)}
+                        />
+                        <label
+                          className={`form-check-label ${bloqueada ? 'text-muted' : ''}`}
+                          htmlFor={idOpcion}
+                        >
+                          {nombre}
+                        </label>
+                      </div>
+                    );
+                  })}
+                  <button
+                    type="button"
+                    className="btn btn-success btn-sm w-100 mt-2"
+                    onClick={() => setListaAbierta(false)}
+                  >
+                    {faltan > 0 ? `Listo (faltan ${faltan})` : 'Listo'}
+                  </button>
+                </div>
+              )}
+
+              {/* Las elegidas, en una línea */}
+              {elegidas.length > 0 && (
+                <p className="small text-muted mt-1 mb-0 text-truncate" title={elegidas.join(', ')}>
+                  {elegidas.join(', ')}
+                </p>
+              )}
+            </div>
           )}
 
           <p className="fs-4 fw-bold text-success mt-auto mb-3">
             {formatearPrecio(varianteActual.price?.amount)}
             {cantidad && <span className="fs-6 fw-normal text-muted"> · {cantidad}</span>}
-            <span className="d-block fw-normal text-muted" style={{ fontSize: '0.75rem' }}>
+            <span className="d-block fw-normal text-muted" style={{ fontSize: '0.8125rem' }}>
               IVA incluido
+              {precioPorKilo(varianteActual.price?.amount, varianteActual.title, item.nombre) &&
+                ` · ${precioPorKilo(varianteActual.price?.amount, varianteActual.title, item.nombre)}`}
             </span>
           </p>
 
@@ -212,6 +273,7 @@ function TarjetaGilda({ item, onVerInfo, onAdd, opcionesMix = [] }) {
             type="button"
             className="btn btn-success w-100"
             onClick={handleAdd}
+            aria-label={faltan > 0 ? undefined : `Añadir ${item.nombre} al carrito`}
             disabled={agotado || faltan > 0}
           >
             {agotado
@@ -238,9 +300,12 @@ function Gildas() {
 
   const { addToCart } = useCart();
 
-  useEffect(() => {
-    document.title = 'Gildas y mix de gildas | El Puesto de la Dieta';
-  }, []);
+  // Título y descripción para Google
+  useSeo({
+    titulo: 'Gildas y mix de gildas', ruta: '/gildas',
+    descripcion:
+      'Gildas artesanas y mix de gildas: elige el tamaño o crea tu propio mix con 6 variedades. Envío a toda la península desde El Puesto de la Dieta.',
+  });
 
   useEffect(() => {
     let cancelado = false;

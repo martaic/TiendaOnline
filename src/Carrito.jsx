@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useCart } from './context/CartContext';
 import { Link } from 'react-router-dom';
 import { createShopifyCheckout } from './services/shopifyCheckout';
 import ComoFuncionaPedido from './ComoFuncionaPedido';
 import { TRANSPORTISTA, COSTE_ENVIO, DIAS_ENVIO, DIA_CORTE, PLAZO } from './datosEnvio';
+import useSeo from './hooks/useSeo';
 
 // Formatea precios al estilo español: 3,50 €
 const formatoEuro = new Intl.NumberFormat('es-ES', {
@@ -28,10 +29,8 @@ function Carrito() {
   const [pagando, setPagando] = useState(false);
   const [errorPago, setErrorPago] = useState('');
 
-  // Título de la pestaña del navegador
-  useEffect(() => {
-    document.title = 'Tu carrito | El Puesto de la Dieta';
-  }, []);
+  // Título de la pestaña (el carrito no debe salir en Google)
+  useSeo({ titulo: 'Tu carrito', ruta: '/carrito', noindex: true });
 
   if (cart.length === 0) {
     return (

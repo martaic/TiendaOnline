@@ -8,7 +8,11 @@ function Navbar() {
   const { cartCount } = useCart();
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark shadow-sm py-3" style={{ backgroundColor: '#556b2f' }}>
+    <nav
+      className="navbar navbar-expand-lg navbar-dark shadow-sm py-3"
+      style={{ backgroundColor: '#556b2f' }}
+      aria-label="Principal"
+    >
       <div className="container">
         {/* LOGO */}
         <Link className="navbar-brand d-flex align-items-center p-0" to="/" aria-label="El Puesto de la Dieta - Inicio">
@@ -29,7 +33,12 @@ function Navbar() {
 
         <div className="d-flex align-items-center gap-4">
           {/* BUSCADOR */}
-          <Link to="/buscar" className="text-white d-flex align-items-center" aria-label="Buscar productos">
+          <Link
+            to="/buscar"
+            className="text-white d-flex align-items-center justify-content-center"
+            aria-label="Buscar productos"
+            style={{ minWidth: '44px', minHeight: '44px' }}
+          >
             <i className="bi bi-search" style={{ fontSize: 'clamp(1.6rem, 3.2vw, 2.3rem)', lineHeight: 1 }}></i>
           </Link>
 

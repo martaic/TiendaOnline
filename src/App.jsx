@@ -21,15 +21,23 @@ import SobreNosotros from './SobreNosotros';
 import PoliticaEnvios from './PoliticaEnvios';
 import Contacto from './Contacto';
 import Buscar from './Buscar';
+import PaginaNoEncontrada from './PaginaNoEncontrada';
 import PaginaPreguntas from './PaginaPreguntas';
 
 function App() {
   return (
     <CartProvider>
       <BrowserRouter>
+        {/* Enlace oculto para saltar directamente al contenido (teclado y lectores de pantalla) */}
+        <a href="#contenido" className="visually-hidden-focusable btn btn-light position-absolute m-2" style={{ zIndex: 2000 }}>
+          Saltar al contenido
+        </a>
         <BarraAvisos />
-        <Navbar />
-        <BarraCategorias />
+        <header>
+          <Navbar />
+          <BarraCategorias />
+        </header>
+        <main id="contenido">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/aceitunas" element={<Aceitunas />} />
@@ -50,7 +58,10 @@ function App() {
           <Route path="/contacto" element={<Contacto />} />
           <Route path="/buscar" element={<Buscar />} />
           <Route path="/preguntas-frecuentes" element={<PaginaPreguntas />} />
+          {/* Cualquier otra dirección: página de error 404 */}
+          <Route path="*" element={<PaginaNoEncontrada />} />
         </Routes>
+        </main>
         <Footer />
       </BrowserRouter>
     </CartProvider>

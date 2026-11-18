@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { precioPorKilo } from '../utils/precioKilo';
 
 // Formatea precios al estilo español: 3,50 €
 const formatoEuro = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
@@ -114,8 +115,10 @@ function ModalProducto({
                   {formatearPrecio(varianteActual.price?.amount)}
                   {cantidad && <span className="fs-6 fw-normal text-muted"> · {cantidad}</span>}
                 </p>
-                <span className="text-muted" style={{ fontSize: '0.8rem' }}>
+                <span className="text-muted" style={{ fontSize: '0.8125rem' }}>
                   IVA incluido
+                  {precioPorKilo(varianteActual.price?.amount, varianteActual.title, producto.nombre) &&
+                    ` · ${precioPorKilo(varianteActual.price?.amount, varianteActual.title, producto.nombre)}`}
                 </span>
               </div>
             )}

@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import { useCart } from './context/CartContext';
 import { getCollectionProducts, getTopVentas } from './shopifyClient';
 import PreguntasFrecuentes from './PreguntasFrecuentes';
+import useSeo from './hooks/useSeo';
+import { precioPorKilo } from './utils/precioKilo';
 
 // Formatea precios al estilo español: 3,50 €
 const formatoEuro = new Intl.NumberFormat('es-ES', {
@@ -93,14 +95,17 @@ function TarjetaProducto({ item, variante = 'normal', puesto, onAdd }) {
         <p className="card-text fw-bold text-success">
           {formatearPrecio(precio)}
           {cantidad && <span className="fw-normal text-muted small"> · {cantidad}</span>}
-          <span className="d-block fw-normal text-muted" style={{ fontSize: '0.75rem' }}>
+          <span className="d-block fw-normal text-muted" style={{ fontSize: '0.8125rem' }}>
             IVA incluido
+            {precioPorKilo(varianteShopify.price?.amount, varianteShopify.title, item.nombre) &&
+              ` · ${precioPorKilo(varianteShopify.price?.amount, varianteShopify.title, item.nombre)}`}
           </span>
         </p>
 
         <button
           className={`btn w-100 mt-auto ${esCampana ? 'btn-outline-danger' : 'btn-success'}`}
           onClick={handleAdd}
+          aria-label={`Añadir ${item.nombre} al carrito`}
           disabled={agotado}
         >
           {agotado ? 'Agotado' : anadido ? '✓ Añadido' : 'Añadir al carrito'}
@@ -114,6 +119,13 @@ function Home() {
   const [productos, setProductos] = useState({}); // { clave: [productos] }
   const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
+
+  // Título y descripción de la portada para Google
+  useSeo({
+    ruta: '/',
+    descripcion:
+      'Tienda online de El Puesto de la Dieta: aceitunas, gildas, encurtidos, especias, dulces, frutos secos y caramelos. Envío a toda la península en 24-48 h.',
+  });
 
   useEffect(() => {
     async function cargarHome() {

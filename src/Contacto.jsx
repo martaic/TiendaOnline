@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import useSeo from './hooks/useSeo';
 
 // ===== DATOS DE CONTACTO (cámbialos solo aquí) =====
 const TELEFONO = '633 683 722';
@@ -10,9 +10,12 @@ const LOCALIDAD = 'Jaraíz de la Vera (Cáceres)';
 const telefonoEnlace = `+34${TELEFONO.replace(/\s/g, '')}`;
 
 function Contacto() {
-  useEffect(() => {
-    document.title = 'Contacto | El Puesto de la Dieta';
-  }, []);
+  // Título y descripción para Google
+  useSeo({
+    titulo: 'Contacto', ruta: '/contacto',
+    descripcion:
+      'Contacta con El Puesto de la Dieta por teléfono, WhatsApp o email. Te ayudamos con tus pedidos, envíos y cualquier duda sobre los productos.',
+  });
 
   return (
     <div className="container py-5" style={{ maxWidth: '720px' }}>

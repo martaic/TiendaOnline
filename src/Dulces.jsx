@@ -3,6 +3,8 @@ import './styles/Home.css';
 import { useCart } from './context/CartContext';
 import ModalProducto from './components/ModalProducto';
 import { getCollectionProducts } from './shopifyClient';
+import useSeo from './hooks/useSeo';
+import { precioPorKilo } from './utils/precioKilo';
 
 // Formatea precios al estilo español: 3,50 €
 const formatoEuro = new Intl.NumberFormat('es-ES', {
@@ -136,8 +138,10 @@ function TarjetaDulce({ item, onVerInfo, onAdd }) {
           <p className="fs-4 fw-bold text-danger mt-auto mb-3">
             {formatearPrecio(varianteActual.price?.amount)}
             {cantidad && <span className="fs-6 fw-normal text-muted"> · {cantidad}</span>}
-            <span className="d-block fw-normal text-muted" style={{ fontSize: '0.75rem' }}>
+            <span className="d-block fw-normal text-muted" style={{ fontSize: '0.8125rem' }}>
               IVA incluido
+              {precioPorKilo(varianteActual.price?.amount, varianteActual.title, item.nombre) &&
+                ` · ${precioPorKilo(varianteActual.price?.amount, varianteActual.title, item.nombre)}`}
             </span>
           </p>
 
@@ -145,6 +149,7 @@ function TarjetaDulce({ item, onVerInfo, onAdd }) {
             type="button"
             className="btn btn-danger w-100"
             onClick={handleAdd}
+            aria-label={`Añadir ${item.nombre} al carrito`}
             disabled={agotado}
           >
             {agotado ? 'Agotado' : anadido ? '✓ Añadido' : 'Añadir al carrito'}
@@ -166,10 +171,12 @@ function Dulces() {
 
   const { addToCart } = useCart();
 
-  // Título de la pestaña del navegador (también ayuda en Google)
-  useEffect(() => {
-    document.title = 'Dulces con y sin azúcar | El Puesto de la Dieta';
-  }, []);
+  // Título y descripción para Google
+  useSeo({
+    titulo: 'Dulces con y sin azúcar', ruta: '/dulces',
+    descripcion:
+      'Dulces y repostería tradicional, con y sin azúcar, de El Puesto de la Dieta. Compra online con envío a toda la España peninsular.',
+  });
 
   useEffect(() => {
     let cancelado = false;

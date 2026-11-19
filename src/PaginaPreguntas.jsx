@@ -1,16 +1,13 @@
 import { Link } from 'react-router-dom';
 import { ListaPreguntas } from './PreguntasFrecuentes';
 import useSeo from './hooks/useSeo';
+import { seoDe } from './datosSeo';
 
 // Página con TODAS las preguntas frecuentes (/preguntas-frecuentes).
 // Las preguntas se cambian en PreguntasFrecuentes.jsx
 function PaginaPreguntas() {
   // Título y descripción para Google
-  useSeo({
-    titulo: 'Preguntas frecuentes', ruta: '/preguntas-frecuentes',
-    descripcion:
-      'Resolvemos tus dudas sobre pedidos, formas de pago, envíos, alérgenos y devoluciones en la tienda online de El Puesto de la Dieta.',
-  });
+  useSeo(seoDe('/preguntas-frecuentes'));
 
   return (
     <div className="container py-5">

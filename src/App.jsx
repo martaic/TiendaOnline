@@ -10,7 +10,7 @@ import BarraAvisos from './BarraAvisos';
 import Footer from './Footer';
 import Especias from './Especias';
 import Gildas from './Gildas';
-import Golosinas from './Golosinas';
+import FrutosSecos from './FrutosSecos';
 import Carrito from './Carrito';
 import Fritos from './Fritos';
 import Conservas from './Conservas';
@@ -51,7 +51,9 @@ function App() {
           <Route path="/miel" element={<Miel />} />
           <Route path="/fruta-deshidratada" element={<FrutaDeshidratada />} />
           <Route path="/gildas" element={<Gildas />} />
-          <Route path="/golosinas" element={<Golosinas />} />
+          <Route path="/frutos-secos" element={<FrutosSecos />} />
+          {/* Dirección antigua: lleva a la nueva */}
+          <Route path="/golosinas" element={<Navigate to="/frutos-secos" replace />} />
           <Route path="/carrito" element={<Carrito />} />
           <Route path="/sobre-nosotros" element={<SobreNosotros />} />
           <Route path="/politica-envios" element={<PoliticaEnvios />} />

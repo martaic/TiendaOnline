@@ -4,6 +4,7 @@ import { useCart } from './context/CartContext';
 import ModalProducto from './components/ModalProducto';
 import { getCollectionProducts } from './shopifyClient';
 import useSeo from './hooks/useSeo';
+import { seoDe } from './datosSeo';
 import { precioPorKilo } from './utils/precioKilo';
 
 // Formatea precios al estilo español: 3,50 €
@@ -301,11 +302,7 @@ function Gildas() {
   const { addToCart } = useCart();
 
   // Título y descripción para Google
-  useSeo({
-    titulo: 'Gildas y mix de gildas', ruta: '/gildas',
-    descripcion:
-      'Gildas artesanas y mix de gildas: elige el tamaño o crea tu propio mix con 6 variedades. Envío a toda la península desde El Puesto de la Dieta.',
-  });
+  useSeo(seoDe('/gildas'));
 
   useEffect(() => {
     let cancelado = false;

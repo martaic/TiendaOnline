@@ -4,6 +4,7 @@ import { useCart } from './context/CartContext';
 import ModalProducto from './components/ModalProducto';
 import { getCollectionProducts } from './shopifyClient';
 import useSeo from './hooks/useSeo';
+import { seoDe } from './datosSeo';
 import { precioPorKilo } from './utils/precioKilo';
 
 // Formatea precios al estilo español: 3,50 €
@@ -149,11 +150,7 @@ function FrutaDeshidratada() {
   const { addToCart } = useCart();
 
   // Título y descripción para Google
-  useSeo({
-    titulo: 'Fruta deshidratada', ruta: '/fruta-deshidratada',
-    descripcion:
-      'Fruta deshidratada y liofilizada de El Puesto de la Dieta: todo el sabor de la fruta. Compra online con envío a la península en 24-48 horas.',
-  });
+  useSeo(seoDe('/fruta-deshidratada'));
 
   useEffect(() => {
     let cancelado = false;

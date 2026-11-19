@@ -4,6 +4,7 @@ import { useCart } from './context/CartContext';
 import ModalProducto from './components/ModalProducto';
 import { getCollectionProducts } from './shopifyClient';
 import useSeo from './hooks/useSeo';
+import { seoDe } from './datosSeo';
 import { precioPorKilo } from './utils/precioKilo';
 
 // Formatea precios al estilo español: 3,50 €
@@ -149,11 +150,7 @@ function FrutosSecos() {
   const { addToCart } = useCart();
 
   // Título y descripción para Google
-  useSeo({
-    titulo: 'Frutos secos', ruta: '/golosinas',
-    descripcion:
-      'Frutos secos naturales y tostados de El Puesto de la Dieta, para picar o cocinar. Compra online con envío a la península en 24-48 horas.',
-  });
+  useSeo(seoDe('/frutos-secos'));
 
   useEffect(() => {
     let cancelado = false;

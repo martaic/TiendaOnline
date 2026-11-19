@@ -8,6 +8,7 @@ import {
   PLAZO,
 } from './datosEnvio';
 import useSeo from './hooks/useSeo';
+import { seoDe } from './datosSeo';
 
 // Los datos de envío (precio, días, hora y plazo) se cambian en src/datosEnvio.js
 // Envío gratis desactivado de momento. Para volver a activarlo, pon el importe (p. ej. '50 €')
@@ -18,11 +19,7 @@ const COLUMNA = ENVIO_GRATIS_DESDE ? 'col-6 col-md-3' : 'col-12 col-sm-4';
 
 function PoliticaEnvios() {
   // Título y descripción para Google
-  useSeo({
-    titulo: 'Política de envíos', ruta: '/politica-envios',
-    descripcion:
-      'Envíos de El Puesto de la Dieta con TIPSA a toda la península por 6,90 €. Entrega en 24-48 horas laborables desde que sale tu pedido.',
-  });
+  useSeo(seoDe('/politica-envios'));
 
   return (
     <div className="container py-5" style={{ maxWidth: '760px' }}>

@@ -5,6 +5,7 @@ import { useCart } from './context/CartContext';
 import { getCollectionProducts, getTopVentas } from './shopifyClient';
 import PreguntasFrecuentes from './PreguntasFrecuentes';
 import useSeo from './hooks/useSeo';
+import { seoDe } from './datosSeo';
 import { precioPorKilo } from './utils/precioKilo';
 
 // Formatea precios al estilo español: 3,50 €
@@ -121,11 +122,7 @@ function Home() {
   const { addToCart } = useCart();
 
   // Título y descripción de la portada para Google
-  useSeo({
-    ruta: '/',
-    descripcion:
-      'Tienda online de El Puesto de la Dieta: aceitunas, gildas, encurtidos, especias, dulces, frutos secos y caramelos. Envío a toda la península en 24-48 h.',
-  });
+  useSeo(seoDe('/'));
 
   useEffect(() => {
     async function cargarHome() {

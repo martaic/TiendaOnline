@@ -4,6 +4,7 @@ import { useCart } from './context/CartContext';
 import ModalProducto from './components/ModalProducto';
 import { getCollectionProducts } from './shopifyClient';
 import useSeo from './hooks/useSeo';
+import { seoDe } from './datosSeo';
 import { precioPorKilo } from './utils/precioKilo';
 
 // Formatea precios al estilo español: 3,50 €
@@ -149,11 +150,7 @@ function Caramelos() {
   const { addToCart } = useCart();
 
   // Título y descripción para Google
-  useSeo({
-    titulo: 'Caramelos', ruta: '/caramelos',
-    descripcion:
-      'Caramelos de toda la vida, con muchos sabores para elegir. Compra online en El Puesto de la Dieta con envío a toda la península.',
-  });
+  useSeo(seoDe('/caramelos'));
 
   useEffect(() => {
     let cancelado = false;

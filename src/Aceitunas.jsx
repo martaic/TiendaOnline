@@ -4,6 +4,7 @@ import { useCart } from './context/CartContext';
 import ModalProducto from './components/ModalProducto';
 import { getCollectionProducts } from './shopifyClient';
 import useSeo from './hooks/useSeo';
+import { seoDe } from './datosSeo';
 import { precioPorKilo } from './utils/precioKilo';
 
 // Formatea precios al estilo español: 3,50 €
@@ -148,11 +149,7 @@ function Aceitunas() {
   const { addToCart } = useCart();
 
   // Título y descripción para Google
-  useSeo({
-    titulo: 'Aceitunas y encurtidos', ruta: '/aceitunas',
-    descripcion:
-      'Aceitunas aliñadas y encurtidos de El Puesto de la Dieta, directamente de nuestro puesto a tu mesa. Compra online con envío a la península en 24-48 h.',
-  });
+  useSeo(seoDe('/aceitunas'));
 
   useEffect(() => {
     let cancelado = false;

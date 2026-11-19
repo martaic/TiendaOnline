@@ -4,6 +4,7 @@ import { useCart } from './context/CartContext';
 import ModalProducto from './components/ModalProducto';
 import { getCollectionProducts } from './shopifyClient';
 import useSeo from './hooks/useSeo';
+import { seoDe } from './datosSeo';
 import { precioPorKilo } from './utils/precioKilo';
 
 // Formatea precios al estilo español: 3,50 €
@@ -172,11 +173,7 @@ function Dulces() {
   const { addToCart } = useCart();
 
   // Título y descripción para Google
-  useSeo({
-    titulo: 'Dulces con y sin azúcar', ruta: '/dulces',
-    descripcion:
-      'Dulces y repostería tradicional, con y sin azúcar, de El Puesto de la Dieta. Compra online con envío a toda la España peninsular.',
-  });
+  useSeo(seoDe('/dulces'));
 
   useEffect(() => {
     let cancelado = false;

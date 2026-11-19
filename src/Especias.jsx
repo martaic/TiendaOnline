@@ -4,6 +4,7 @@ import { useCart } from './context/CartContext';
 import ModalProducto from './components/ModalProducto';
 import { getCollectionProducts } from './shopifyClient';
 import useSeo from './hooks/useSeo';
+import { seoDe } from './datosSeo';
 import { precioPorKilo } from './utils/precioKilo';
 
 // Formatea precios al estilo español: 3,50 €
@@ -149,11 +150,7 @@ function Especias() {
   const { addToCart } = useCart();
 
   // Título y descripción para Google
-  useSeo({
-    titulo: 'Especias', ruta: '/especias',
-    descripcion:
-      'Especias, pimentón y condimentos de El Puesto de la Dieta para dar sabor a tu cocina. Compra online con envío a la península en 24-48 horas.',
-  });
+  useSeo(seoDe('/especias'));
 
   useEffect(() => {
     let cancelado = false;

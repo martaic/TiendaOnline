@@ -4,6 +4,7 @@ import { useCart } from './context/CartContext';
 import ModalProducto from './components/ModalProducto';
 import { getCollectionProducts } from './shopifyClient';
 import useSeo from './hooks/useSeo';
+import { seoDe } from './datosSeo';
 import { precioPorKilo } from './utils/precioKilo';
 
 // Formatea precios al estilo español: 3,50 €
@@ -149,11 +150,7 @@ function Conservas() {
   const { addToCart } = useCart();
 
   // Título y descripción para Google
-  useSeo({
-    titulo: 'Conservas', ruta: '/conservas',
-    descripcion:
-      'Conservas seleccionadas de El Puesto de la Dieta. Compra online con envío a toda la España peninsular en 24-48 horas laborables.',
-  });
+  useSeo(seoDe('/conservas'));
 
   useEffect(() => {
     let cancelado = false;

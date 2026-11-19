@@ -1,4 +1,5 @@
 import useSeo from './hooks/useSeo';
+import { seoDe } from './datosSeo';
 
 // ===== DATOS DE CONTACTO (cámbialos solo aquí) =====
 const TELEFONO = '633 683 722';
@@ -11,11 +12,7 @@ const telefonoEnlace = `+34${TELEFONO.replace(/\s/g, '')}`;
 
 function Contacto() {
   // Título y descripción para Google
-  useSeo({
-    titulo: 'Contacto', ruta: '/contacto',
-    descripcion:
-      'Contacta con El Puesto de la Dieta por teléfono, WhatsApp o email. Te ayudamos con tus pedidos, envíos y cualquier duda sobre los productos.',
-  });
+  useSeo(seoDe('/contacto'));
 
   return (
     <div className="container py-5" style={{ maxWidth: '720px' }}>

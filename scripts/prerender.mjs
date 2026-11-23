@@ -40,7 +40,10 @@ function construir({ titulo, descripcion, ruta, noindex }) {
 
   // Texto de respaldo para buscadores que no ejecutan JavaScript (React lo sustituye al cargar)
   if (titulo || descripcion) {
-    const respaldo = `<h1>${escapar(titulo || MARCA)}</h1>${descripcion ? `<p>${escapar(descripcion)}</p>` : ''}`;
+    // Va oculto a la vista (para que no se vea un instante al abrir la página),
+    // pero los buscadores y lectores de pantalla lo siguen leyendo.
+    const oculto = 'position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0';
+    const respaldo = `<div style="${oculto}"><h1>${escapar(titulo || MARCA)}</h1>${descripcion ? `<p>${escapar(descripcion)}</p>` : ''}</div>`;
     html = html.replace('<div id="root"></div>', `<div id="root">${respaldo}</div>`);
   }
   return html;

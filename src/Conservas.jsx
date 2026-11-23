@@ -6,6 +6,7 @@ import { getCollectionProducts } from './shopifyClient';
 import useSeo from './hooks/useSeo';
 import { seoDe } from './datosSeo';
 import { precioPorKilo } from './utils/precioKilo';
+import { pesosConserva } from './utils/pesosConserva';
 
 // Formatea precios al estilo español: 3,50 €
 const formatoEuro = new Intl.NumberFormat('es-ES', {
@@ -81,6 +82,12 @@ function TarjetaConserva({ item, onVerInfo, onAdd }) {
         <div className="card-body d-flex flex-column text-center">
           <h2 className="card-title fw-bold fs-5">{item.nombre}</h2>
 
+          {/* Peso neto y escurrido, sacados de la descripción de Shopify */}
+          {pesosConserva(item.descripcion) && (
+            <p className="text-muted mb-1" style={{ fontSize: '0.875rem' }}>
+              {pesosConserva(item.descripcion)}
+            </p>
+          )}
 
           {/* Enlace a ingredientes: solo si el producto tiene descripción en Shopify */}
           {item.descripcion && (

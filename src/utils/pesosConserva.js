@@ -23,7 +23,7 @@ export function pesosConserva(descripcion = '') {
   const neto = leer(texto, RE_NETO);
   const escurrido = leer(texto, RE_ESCURRIDO);
   if (!neto && !escurrido) return null;
-  return [neto && `Peso neto ${neto}`, escurrido && `Escurrido ${escurrido}`]
+    return [neto && `Peso neto ${neto}`, escurrido && `Peso escurrido ${escurrido}`]
     .filter(Boolean)
     .join(' · ');
 }

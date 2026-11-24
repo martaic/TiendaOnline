@@ -9,7 +9,7 @@ const CATEGORIAS = [
   { nombre: 'Gildas', ruta: '/gildas', icono: '/iconos/gildas.png' },
   { nombre: 'Especias', ruta: '/especias', icono: '/iconos/especias.png' },
   { nombre: 'Dulces', ruta: '/dulces', icono: '/iconos/dulces.png' },
-  { nombre: 'Frutos secos', ruta: '/frutos-secos', icono: '🥜' },
+  { nombre: 'Frutos secos', ruta: '/frutos-secos', icono: '/iconos/frutos-secos.png' },
   { nombre: 'Fruta deshidratada', ruta: '/fruta-deshidratada', icono: '/iconos/fruta-deshidratada.png' },
   { nombre: 'Fritos', ruta: '/fritos', icono: '/iconos/fritos.png' },
   { nombre: 'Conservas', ruta: '/conservas', icono: '/iconos/envases.png' },

@@ -4,7 +4,10 @@ import '../styles/Home.css';
 
 // Pestañas de categorías (para añadir o cambiar una, tócala solo aquí)
 // "icono" puede ser un dibujo de la carpeta public/iconos/ o un emoji
+// "desde" / "hasta" (opcional, AAAA-MM-DD): la pestaña solo se ve entre esas fechas.
+//   El día "hasta" ya no aparece. Para la Navidad del año que viene, cambia solo las fechas.
 const CATEGORIAS = [
+  { nombre: 'Navidad', ruta: '/navidad', icono: '🎄', desde: '2026-11-01', hasta: '2027-01-07', destacada: true },
   { nombre: 'Encurtidos', ruta: '/aceitunas', icono: '/iconos/encurtidos.png' },
   { nombre: 'Gildas', ruta: '/gildas', icono: '/iconos/gildas.png' },
   { nombre: 'Especias', ruta: '/especias', icono: '/iconos/especias.png' },
@@ -16,6 +19,14 @@ const CATEGORIAS = [
   { nombre: 'Caramelos', ruta: '/caramelos', icono: '/iconos/caramelos.png' },
   { nombre: 'Miel', ruta: '/miel', icono: '/iconos/miel.png' },
 ];
+
+// Pestañas de temporada: solo cuentan si hoy está entre "desde" y "hasta"
+function categoriaVisible(cat) {
+  const hoy = new Date().toISOString().slice(0, 10); // AAAA-MM-DD
+  if (cat.desde && hoy < cat.desde) return false;
+  if (cat.hasta && hoy >= cat.hasta) return false;
+  return true;
+}
 
 // Barra de categorías: sale en todas las páginas, debajo de la cabecera.
 // Se desliza con el dedo o el ratón, con flechas cuando no caben todas,
@@ -69,9 +80,9 @@ function BarraCategorias() {
         )}
 
         <ul className="categorias-lista" ref={listaRef} onScroll={actualizarFlechas}>
-          {CATEGORIAS.map((cat) => (
+          {CATEGORIAS.filter(categoriaVisible).map((cat) => (
             <li key={cat.ruta}>
-              <NavLink className="categoria-pill" to={cat.ruta}>
+              <NavLink className={`categoria-pill${cat.destacada ? ' destacada' : ''}`} to={cat.ruta}>
                 <span className="categoria-icono" aria-hidden="true">
                   {cat.icono.startsWith('/') ? (
                     <img src={cat.icono} alt="" width="24" height="24" onLoad={actualizarFlechas} />

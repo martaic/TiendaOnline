@@ -16,6 +16,7 @@ import Fritos from './Fritos';
 import Conservas from './Conservas';
 import Caramelos from './Caramelos';
 import Miel from './Miel';
+import Navidad from './Navidad';
 import FrutaDeshidratada from './FrutaDeshidratada';
 import SobreNosotros from './SobreNosotros';
 import PoliticaEnvios from './PoliticaEnvios';
@@ -49,6 +50,7 @@ function App() {
           <Route path="/envases" element={<Navigate to="/conservas" replace />} />
           <Route path="/caramelos" element={<Caramelos />} />
           <Route path="/miel" element={<Miel />} />
+          <Route path="/navidad" element={<Navidad />} />
           <Route path="/fruta-deshidratada" element={<FrutaDeshidratada />} />
           <Route path="/gildas" element={<Gildas />} />
           <Route path="/frutos-secos" element={<FrutosSecos />} />

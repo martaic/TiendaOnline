@@ -1,0 +1,310 @@
+import React, { useCallback, useEffect, useState } from 'react';
+import './styles/Home.css';
+import { useCart } from './context/CartContext';
+import ModalProducto from './components/ModalProducto';
+import { getCollectionProducts } from './shopifyClient';
+import useSeo from './hooks/useSeo';
+import { seoDe } from './datosSeo';
+import { precioPorKilo } from './utils/precioKilo';
+
+// Formatea precios al estilo español: 3,50 €
+const formatoEuro = new Intl.NumberFormat('es-ES', {
+  style: 'currency',
+  currency: 'EUR',
+});
+const formatearPrecio = (valor) => formatoEuro.format(Number(valor || 0));
+
+// Filtros disponibles (clave interna → texto que ve el cliente)
+const FILTROS = [
+  { clave: 'todos', texto: 'Todos' },
+  { clave: 'con-azucar', texto: 'Con azúcar' },
+  { clave: 'sin-azucar', texto: 'Sin azúcar' },
+];
+
+const ETIQUETAS = {
+  'con-azucar': { texto: 'Con azúcar', clase: 'bg-warning text-dark' },
+  'sin-azucar': { texto: 'Sin azúcar', clase: 'bg-info text-dark' },
+};
+
+// ================= TARJETA DE PRODUCTO =================
+function TarjetaNavidad({ item, onVerInfo, onAdd }) {
+  const variantes = item.variantes || [];
+
+  // Por defecto elegimos la primera variante que tenga stock
+  const [varianteId, setVarianteId] = useState(
+    () => (variantes.find((v) => v.availableForSale !== false) || variantes[0])?.id
+  );
+  const [anadido, setAnadido] = useState(false);
+
+  const varianteActual = variantes.find((v) => v.id === varianteId) || variantes[0];
+  if (!varianteActual) return null;
+
+  const agotado = varianteActual.availableForSale === false;
+  const tieneVariasOpciones = variantes.length > 1;
+  // Si solo hay una opción (p. ej. "250 gr"), la mostramos junto al precio.
+  // "Default Title" es lo que pone Shopify cuando el producto no tiene opciones.
+  const cantidad =
+    !tieneVariasOpciones && varianteActual.title !== 'Default Title' ? varianteActual.title : null;
+  const etiqueta = ETIQUETAS[item.subcategoria];
+
+  const handleAdd = () => {
+    onAdd({
+      id: varianteActual.id, // ID de la variante: es lo que Shopify necesita para el pago
+      title:
+        tieneVariasOpciones || cantidad
+          ? `${item.nombre} (${varianteActual.title})`
+          : item.nombre,
+      price: Number(varianteActual.price?.amount || 0),
+      image: item.imagen_url,
+    });
+    setAnadido(true);
+    setTimeout(() => setAnadido(false), 1500);
+  };
+
+  return (
+    <div className="col-12 col-sm-6 col-md-4 col-lg-3">
+      <div className="card h-100 shadow-sm border-0 product-card">
+        {etiqueta && (
+          <span
+            className={`badge position-absolute m-2 ${etiqueta.clase}`}
+            style={{ top: 0, right: 0, zIndex: 1 }}
+          >
+            {etiqueta.texto}
+          </span>
+        )}
+
+        {/* La foto abre la ficha con ingredientes y alérgenos */}
+        <button
+          type="button"
+          className="p-0 border-0 bg-transparent"
+          onClick={() => onVerInfo(item)}
+          aria-label={`Ver ingredientes de ${item.nombre}`}
+        >
+          {item.imagen_url ? (
+            <img
+              src={item.imagen_url}
+              alt={item.imagen_alt || item.nombre}
+              className="card-img-top"
+              loading="lazy"
+              width="400"
+              height="220"
+              style={{ height: '220px', objectFit: 'cover' }}
+            />
+          ) : (
+            <div
+              className="card-img-top bg-light d-flex align-items-center justify-content-center text-muted"
+              style={{ height: '220px' }}
+            >
+              <i className="bi bi-image fs-1"></i>
+            </div>
+          )}
+        </button>
+
+        <div className="card-body d-flex flex-column text-center">
+          <h2 className="card-title fw-bold fs-5">{item.nombre}</h2>
+
+
+          {/* Enlace a ingredientes: solo si el producto tiene descripción en Shopify */}
+          {item.descripcion && (
+            <button
+              type="button"
+              className="btn btn-link text-muted small mb-3 p-0 text-decoration-none"
+              onClick={() => onVerInfo(item)}
+            >
+              <i className="bi bi-info-circle me-1" aria-hidden="true"></i>Ingredientes
+            </button>
+          )}
+
+          {tieneVariasOpciones && (
+            <div className="mb-3">
+              <label className="form-label small fw-bold" htmlFor={`variante-${item.id}`}>
+                Selecciona cantidad
+              </label>
+              <select
+                id={`variante-${item.id}`}
+                className="form-select"
+                value={varianteActual.id}
+                onChange={(e) => setVarianteId(e.target.value)}
+              >
+                {variantes.map((v) => (
+                  <option key={v.id} value={v.id}>
+                    {v.title}
+                    {v.availableForSale === false ? ' (agotado)' : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <p className="fs-4 fw-bold text-danger mt-auto mb-3">
+            {formatearPrecio(varianteActual.price?.amount)}
+            {cantidad && <span className="fs-6 fw-normal text-muted"> · {cantidad}</span>}
+            <span className="d-block fw-normal text-muted" style={{ fontSize: '0.8125rem' }}>
+              IVA incluido
+              {precioPorKilo(varianteActual.price?.amount, varianteActual.title, item.nombre) &&
+                ` · ${precioPorKilo(varianteActual.price?.amount, varianteActual.title, item.nombre)}`}
+            </span>
+          </p>
+
+          <button
+            type="button"
+            className="btn btn-danger w-100"
+            onClick={handleAdd}
+            aria-label={`Añadir ${item.nombre} al carrito`}
+            disabled={agotado}
+          >
+            {agotado ? 'Agotado' : anadido ? '✓ Añadido' : 'Añadir al carrito'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ================= PÁGINA =================
+function Navidad() {
+  const [productos, setProductos] = useState([]);
+  const [filtro, setFiltro] = useState('todos');
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState(false);
+  const [productoSeleccionado, setProductoSeleccionado] = useState(null);
+  const [intento, setIntento] = useState(0); // para el botón "Reintentar"
+
+  const { addToCart } = useCart();
+
+  // Título y descripción para Google
+  useSeo(seoDe('/navidad'));
+
+  useEffect(() => {
+    let cancelado = false;
+
+    // Colecciones de Shopify (su identificador/handle tiene que ser exactamente este):
+    //   "Navidad con azúcar" → navidad-con-azucar
+    //   "Navidad sin azúcar" → navidad-sin-azucar
+    Promise.allSettled([
+      getCollectionProducts('navidad-con-azucar'),
+      getCollectionProducts('navidad-sin-azucar'),
+    ]).then(([resCon, resSin]) => {
+      if (cancelado) return;
+
+      if (resCon.status === 'rejected' && resSin.status === 'rejected') {
+        console.error('Error cargando dulces de Navidad:', resCon.reason, resSin.reason);
+        setError(true);
+        setCargando(false);
+        return;
+      }
+
+      const conAzucar = resCon.status === 'fulfilled' ? resCon.value : [];
+      const sinAzucar = resSin.status === 'fulfilled' ? resSin.value : [];
+
+      // Si un producto está en las dos colecciones, solo lo mostramos una vez
+      const vistos = new Set();
+      const productosFinales = [
+        ...conAzucar.map((item) => ({ ...item, subcategoria: 'con-azucar' })),
+        ...sinAzucar.map((item) => ({ ...item, subcategoria: 'sin-azucar' })),
+      ].filter((item) => {
+        if (vistos.has(item.id)) return false;
+        vistos.add(item.id);
+        return true;
+      });
+
+      setProductos(productosFinales);
+      setError(false);
+      setCargando(false);
+    });
+
+    // Si el usuario sale de la página antes de que responda Shopify, no actualizamos nada
+    return () => {
+      cancelado = true;
+    };
+  }, [intento]);
+
+  const cerrarModal = useCallback(() => setProductoSeleccionado(null), []);
+
+  const reintentar = () => {
+    setCargando(true);
+    setError(false);
+    setIntento((n) => n + 1);
+  };
+
+  const productosFiltrados =
+    filtro === 'todos' ? productos : productos.filter((item) => item.subcategoria === filtro);
+
+  if (cargando) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
+        <div className="text-center">
+          <div className="spinner-border text-danger mb-2" role="status"></div>
+          <p className="text-muted">Endulzando la página...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container py-5">
+      <div className="text-center mb-5">
+        <h1 className="fw-bold text-danger" style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)' }}>
+          🎄 Dulces de Navidad
+        </h1>
+        <p className="lead text-muted">
+          Turrones, polvorones y los dulces de siempre para estas fiestas, con y sin azúcar. Solo por Navidad.
+        </p>
+
+        {!error && productos.length > 0 && (
+          <div className="btn-group mt-3 shadow-sm" role="group" aria-label="Filtrar dulces de Navidad">
+            {FILTROS.map(({ clave, texto }) => (
+              <button
+                key={clave}
+                type="button"
+                onClick={() => setFiltro(clave)}
+                aria-pressed={filtro === clave}
+                className={`btn ${filtro === clave ? 'btn-danger' : 'btn-outline-danger'}`}
+              >
+                {texto}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {error ? (
+        <div className="text-center py-5">
+          <p className="text-muted mb-3">
+            No hemos podido cargar los productos. Comprueba tu conexión e inténtalo de nuevo.
+          </p>
+          <button type="button" className="btn btn-danger rounded-pill px-4" onClick={reintentar}>
+            Reintentar
+          </button>
+        </div>
+      ) : productosFiltrados.length === 0 ? (
+        <p className="text-center text-muted py-5">
+          {productos.length === 0
+            ? 'Muy pronto tendremos aquí los dulces de Navidad. ¡Vuelve en unos días!'
+            : 'No hay dulces en esta categoría por ahora.'}
+        </p>
+      ) : (
+        <div className="row g-4">
+          {productosFiltrados.map((item) => (
+            <TarjetaNavidad
+              key={item.id}
+              item={item}
+              onVerInfo={setProductoSeleccionado}
+              onAdd={addToCart}
+            />
+          ))}
+        </div>
+      )}
+
+      {productoSeleccionado && (
+        <ModalProducto
+          producto={productoSeleccionado}
+          onClose={cerrarModal}
+          onAdd={addToCart} color="danger"
+        />
+      )}
+    </div>
+  );
+}
+
+export default Navidad;

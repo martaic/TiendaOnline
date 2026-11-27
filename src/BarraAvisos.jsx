@@ -9,9 +9,12 @@ import { Link } from 'react-router-dom';
 // enlace: (opcional) a qué página lleva el botón, y su texto
 // hasta:  (opcional) fecha en la que DEJA de verse sola (AAAA-MM-DD). Ese día ya no aparece.
 // fondo:  color de la barra
-const AVISO = null
-
-;
+const AVISO = {
+  texto: '🎄 ¡Ya tenemos los dulces de Navidad!',
+  enlace: { ruta: '/navidad', texto: 'Ver dulces de Navidad →' },
+  hasta: '2027-01-07',
+  fondo: '#8b1e1e',
+};
 
 // Ejemplo para Navidad (copia esto encima de AVISO cuando toque):
 // const AVISO = {

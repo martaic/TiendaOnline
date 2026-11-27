@@ -61,6 +61,11 @@ export const PAGINAS = {
     descripcion:
       'Caramelos de toda la vida, con muchos sabores para elegir. Compra online en El Puesto de la Dieta con envío a toda la península.',
   },
+  '/navidad': {
+    titulo: 'Dulces de Navidad',
+    descripcion:
+      'Turrones, polvorones y dulces de Navidad, con y sin azúcar, de El Puesto de la Dieta. Solo en estas fechas, con envío a toda la península.',
+  },
   '/miel': {
     titulo: 'Miel',
     descripcion:
